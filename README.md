@@ -1,6 +1,6 @@
 # ft_trancendance.1337
 # irent — ft_transcendence Project Plan
-
+ 
 ## 1. What we're building
 
 **irent**: a student rental platform. Students browse rental listings, message owners directly, and cut out brokers. This is our ft_transcendence project — the final Common Core project (5-person team, ~8 weeks).
