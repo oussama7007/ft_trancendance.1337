@@ -7,6 +7,7 @@
 
 ## 2. Tech stack (final — no debate needed)
 
+
 | Layer | Tool | Why |
 |---|---|---|
 | Frontend | **React** | Listed by name in the subject. Biggest community, easiest to find tutorials/help. |
