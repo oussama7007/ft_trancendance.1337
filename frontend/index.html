@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iRent — Student Housing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+  /* خلفيات بنقشة الزليج المغربي العرائشي */
+  .bg-zellige {
+    background-color: #f8fafc;
+    background-image: radial-gradient(#0284c7 0.75px, transparent 0.75px), radial-gradient(#0284c7 0.75px, #f8fafc 0.75px);
+    background-size: 30px 30px;
+    background-position: 0 0,15px 15px;
+    background-opacity: 0.05;
+  }
+  
+  /* زخرفة للأزرار والكروت بأسلوب الموزاييك المغربي */
+  .moroccan-border {
+    border-image: linear-gradient(to right, #d97706, #059669, #0284c7) 1;
+  }
+
+  .city-badge-rabat { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; }
+  .city-badge-marrakech { background: linear-gradient(135deg, #991b1b, #ef4444); color: white; }
+  .city-badge-tanger { background: linear-gradient(135deg, #065f46, #10b981); color: white; }
+  .city-badge-casa { background: linear-gradient(135deg, #374151, #6b7280); color: white; }
+  .city-badge-khouribga { background: linear-gradient(135deg, #b45309, #f59e0b); color: white; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
