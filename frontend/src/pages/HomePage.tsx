@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language, Listing } from '../types';
 import { CITIES_CULTURE } from '../data/citiesCulture';
+import { HomeMap } from '../components/HomeMap';
 
 interface HomePageProps {
   lang: Language;
@@ -78,7 +79,19 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </div>
 
-      {/* 3. Why Choose iRent */}
+      {/* 3. Interactive Map Section (الخريطة التفاعلية للمغرب والعروض) */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-black text-gray-800 px-2">
+          {lang === 'ar' ? '🗺️ خريطة السكن المتاحة في المغرب:' : '🗺️ Housing Interactive Map:'}
+        </h3>
+        <HomeMap 
+          listings={listings} 
+          onSelectListing={onSelectListing} 
+          lang={lang} 
+        />
+      </div>
+
+      {/* 4. Why Choose iRent */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-2">
           <span className="text-2xl">🎓</span>
@@ -105,7 +118,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </div>
 
-      {/* 4. Featured Listings Preview */}
+      {/* 5. Featured Listings Preview */}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-2">
           <h3 className="text-lg font-black text-gray-800">

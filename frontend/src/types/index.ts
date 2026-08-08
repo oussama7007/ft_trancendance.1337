@@ -19,6 +19,8 @@ export interface Listing {
   imageUrl: string;
   description: LocalizedString;
   ownerName: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface Message {
