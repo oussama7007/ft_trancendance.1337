@@ -1,20 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Language } from '../types';
-<<<<<<< HEAD
 import { translations } from '../translations'; // 👈 استيراد الترجمة المركزية
 
 interface NavbarProps {
   activePage?: string;
-=======
-
-interface NavbarProps {
->>>>>>> origin/main
   setActivePage: (page: string) => void;
   lang: Language;
   setLang: (lang: Language) => void;
 }
 
-<<<<<<< HEAD
 export const Navbar: React.FC<NavbarProps> = ({ activePage = 'home', setActivePage, lang, setLang }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -23,13 +17,6 @@ export const Navbar: React.FC<NavbarProps> = ({ activePage = 'home', setActivePa
   const t = translations[lang] || translations.en;
 
   // إغلاق المنيو إيلا كليكا المستخدم برا
-=======
-export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // إغلاق المنيو إلا كليكا المستخدم برا
->>>>>>> origin/main
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -51,7 +38,6 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
   return (
     <nav className="backdrop-blur-xl bg-white/80 border-b border-gray-100 sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm transition-all duration-300">
       
-<<<<<<< HEAD
       {/* 🏠 الشعار / Logo 3D Pro حصري */}
       <div 
         onClick={() => setActivePage('home')}
@@ -118,40 +104,6 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
       <div className="flex items-center gap-3">
         
         <div className="relative" ref={dropdownRef}>
-=======
-      {/* 🏠 الشعار / Logo باسم irent */}
-      <div 
-        onClick={() => setActivePage('home')}
-        className="text-xl font-black text-gray-900 cursor-pointer 
-                   transition-all duration-300 ease-out 
-                   hover:scale-105 active:scale-95 flex items-center gap-2"
-      >
-        <span className="bg-[#F4845F] text-white p-2 rounded-2xl shadow-md">🏠</span>
-        <span className="tracking-tight text-gray-900">i<span className="text-[#F4845F]">rent</span></span>
-      </div>
-
-      {/* 🧭 روابط التنقل */}
-      <div className="flex items-center gap-2 sm:gap-4">
-        <button onClick={() => setActivePage('home')} className="px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 ease-out hover:scale-110 hover:text-[#F4845F] active:scale-95 cursor-pointer">
-          {lang === 'ar' ? 'الرئيسية' : lang === 'fr' ? 'Accueil' : 'Home'}
-        </button>
-        <button onClick={() => setActivePage('listings')} className="px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 ease-out hover:scale-110 hover:text-[#F4845F] active:scale-95 cursor-pointer">
-          {lang === 'ar' ? 'العروض' : lang === 'fr' ? 'Annonces' : 'Listings'}
-        </button>
-        <button onClick={() => setActivePage('chat')} className="px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 ease-out hover:scale-110 hover:text-[#F4845F] active:scale-95 cursor-pointer">
-          {lang === 'ar' ? 'المحادثات' : lang === 'fr' ? 'Discussions' : 'Chats'}
-        </button>
-        <button onClick={() => setActivePage('profile')} className="px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 ease-out hover:scale-110 hover:text-[#F4845F] active:scale-95 cursor-pointer">
-          {lang === 'ar' ? 'حسابي' : lang === 'fr' ? 'Profil' : 'Profile'}
-        </button>
-      </div>
-
-      {/* 🌐 Custom Language Dropdown الواعر */}
-      <div className="flex items-center gap-3">
-        
-        <div className="relative" ref={dropdownRef}>
-          {/* الزر اللي كيبان */}
->>>>>>> origin/main
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-gray-100/80 hover:bg-gray-200/80 
@@ -163,11 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
             <span className={`transition-transform duration-300 text-gray-500 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
-<<<<<<< HEAD
           {/* القائمة المنسدلة (Dropdown) */}
-=======
-          {/* القائمة المنسدلة (Dropdown) بـ Animation ناعمة */}
->>>>>>> origin/main
           {isOpen && (
             <div className="absolute right-0 mt-3 w-40 bg-white/90 backdrop-blur-xl border border-gray-100 
                             rounded-3xl shadow-2xl py-2 z-50 flex flex-col gap-1 
@@ -180,13 +128,8 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
                     setIsOpen(false);
                   }}
                   className={`flex items-center gap-3 px-4 py-2.5 text-xs font-bold transition-all duration-200 
-<<<<<<< HEAD
                             hover:bg-[#F4845F]/10 hover:text-[#F4845F] text-left w-full cursor-pointer
                             ${lang === l.code ? 'text-[#F4845F] bg-[#F4845F]/5 font-black' : 'text-gray-700'}`}
-=======
-                              hover:bg-[#F4845F]/10 hover:text-[#F4845F] text-left w-full cursor-pointer
-                              ${lang === l.code ? 'text-[#F4845F] bg-[#F4845F]/5 font-black' : 'text-gray-700'}`}
->>>>>>> origin/main
                 >
                   <span className="text-base">{l.flag}</span>
                   <span>{l.label}</span>
@@ -196,11 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
           )}
         </div>
 
-<<<<<<< HEAD
         {/* زر Sign In / دخول */}
-=======
-        {/* زر Sign In */}
->>>>>>> origin/main
         <button
           onClick={() => setActivePage('signin')}
           className="px-5 py-2.5 text-xs font-black bg-gray-900 text-white rounded-2xl shadow-lg 
@@ -208,11 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({ setActivePage, lang, setLang }) 
                      hover:scale-105 hover:bg-black hover:shadow-xl 
                      active:scale-95 cursor-pointer"
         >
-<<<<<<< HEAD
           {t.signIn}
-=======
-          {lang === 'ar' ? 'دخول' : lang === 'fr' ? 'Connexion' : 'Sign In'}
->>>>>>> origin/main
         </button>
 
       </div>

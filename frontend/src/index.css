@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 /* @import "leaflet/dist/leaflet.css"; */
-=======
-@import "leaflet/dist/leaflet.css";
->>>>>>> origin/main
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
