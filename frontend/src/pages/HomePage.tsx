@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Listing, Language } from '../types';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-
+import { translations } from '../translations';
 interface HomePageProps {
   setActivePage: (page: string) => void;
   lang: Language;
@@ -140,7 +140,9 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       contactBtn: 'تواصل مع المعلن 💬',
       noRentals: 'لم يتم العثور على عقارات لهذا البحث.',
       appTitle: 'حمّل تطبيق iRent.ma - ابحث عن منزلك بذكاء',
-      appDesc: 'ابحث عن المنازل، تواصل مع الملاك، وجد شركاء السكن بسهولة من هاتفك. متوفر قريباً على iOS و Android.'
+      appDesc: 'ابحث عن المنازل، تواصل مع الملاك، وجد شركاء السكن بسهولة من هاتفك. متوفر قريباً على iOS و Android.',
+      comingSoonBadge: "قريباً جداً في المغرب",
+      alertMessage: "🚀 قريباً في المغرب!"
     },
     fr: {
       ticker1: '🔥 TROUVEZ VOTRE MAISON OU COLOCATAIRE IDÉAL INSTANTANÉMENT AVEC iRent.MA 🚀',
@@ -170,7 +172,9 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       contactBtn: "Contacter l'annonceur 💬",
       noRentals: 'Aucune location trouvée pour cette recherche.',
       appTitle: "Téléchargez l'App iRent.ma - Trouvez Votre Logement Rapidement",
-      appDesc: 'Trouvez des logements, contactez les propriétaires et gérez vos colocations facilement. Bientôt disponible sur iOS et Android.'
+      appDesc: 'Trouvez des logements, contactez les propriétaires et gérez vos colocations facilement. Bientôt disponible sur iOS et Android.',
+      comingSoonBadge: "Bientôt disponible au Maroc",
+      alertMessage: "🚀 Bientôt au Maroc !"
     },
     en: {
       ticker1: '🔥 FIND YOUR DREAM HOME OR ROOMMATE INSTANTLY WITH iRENT.MA 🚀',
@@ -200,7 +204,9 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       contactBtn: 'Contact Advertiser 💬',
       noRentals: 'No rentals found for this search.',
       appTitle: 'Download the iRent.ma App - Find Your Home Smartly',
-      appDesc: 'Find homes, connect with landlords, and manage roommates easily from your phone. Coming soon to iOS and Android.'
+      appDesc: 'Find homes, connect with landlords, and manage roommates easily from your phone. Coming soon to iOS and Android.',
+    comingSoonBadge: "Coming Soon to Morocco",
+    alertMessage: "🚀 Coming soon to Morocco!"
     }
   };
 
@@ -722,13 +728,12 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
             
             <div className="flex-1 flex flex-col items-start text-start">
         <div 
-            onClick={() => alert('🚀 قريباً في المغرب!')}
-            className="bg-white/15 hover:bg-white/25 text-white font-black px-7 py-3 rounded-full text-sm md:text-base mb-8 shadow-lg hover:shadow-xl flex items-center gap-3 border border-white/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md animate-bounce"
-          >
-            {/* <span className="w-3 h-3 rounded-full bg-white"></span> */}
-            <span>قريباً جداً في المغرب / Coming Soon</span>
-          </div>
-
+          onClick={() => alert(t[lang]?.alertMessage || t.ar.alertMessage)}
+          className="bg-black/100 hover:bg-black/50 text-white font-black px-9 py-5 rounded-full text-sm md:text-base mb-8 shadow-lg hover:shadow-xl flex items-center gap-3 border border-white/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md animate"
+        >
+          {/* <span className="w-3 h-3 rounded-full bg-white animate-ping"></span> */}
+          <span>{t[lang]?.comingSoonBadge || t.ar.comingSoonBadge}</span>
+        </div>
               <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-snug mb-4">
                 {currentLang.appTitle}
               </h2>

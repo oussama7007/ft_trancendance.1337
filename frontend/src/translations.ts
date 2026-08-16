@@ -65,7 +65,7 @@ export const translations = {
     wifiNotAvailable: 'بدون فايبر',
     viewDetails: 'عرض التفاصيل والمراسلة 💬',
     comingSoonBadge: "قريباً جداً في المغرب",
-  alertMessage: "🚀 قريباً في المغرب!"
+    alertMessage: "🚀 قريباً في المغرب!"
     
   },
   fr: {
