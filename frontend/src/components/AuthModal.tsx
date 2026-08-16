@@ -6,7 +6,11 @@ interface AuthModalProps {
   onClose: () => void;
   onAuthSuccess: (userData: { name: string; email: string; role: 'owner' | 'seeker' }) => void;
   lang: Language;
+<<<<<<< HEAD
   t: any; // 👈 استقبال كائن الترجمة المركزي
+=======
+  t: any;
+>>>>>>> origin/main
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, lang, t }) => {
@@ -36,7 +40,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
         <button 
           type="button"
           onClick={onClose} 
+<<<<<<< HEAD
           className="absolute top-4 left-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-bold text-xs transition cursor-pointer"
+=======
+          className="absolute top-4 left-4 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 font-bold text-xs transition"
+>>>>>>> origin/main
         >
           ✕
         </button>
@@ -44,7 +52,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
         {/* العنوان */}
         <div className="text-center pt-1">
           <h3 className="text-base font-extrabold text-gray-900 tracking-tight">
+<<<<<<< HEAD
             {isSignUp ? t.signUp : t.signIn}
+=======
+            {isSignUp ? (lang === 'ar' ? 'حساب جديد' : 'Sign Up') : (lang === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
+>>>>>>> origin/main
           </h3>
         </div>
 
@@ -52,7 +64,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           {isSignUp && (
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
+<<<<<<< HEAD
                 {t.fullNameLabel || 'Name:'}
+=======
+                {lang === 'ar' ? 'الاسم:' : 'Name:'}
+>>>>>>> origin/main
               </label>
               <input 
                 type="text" 
@@ -66,7 +82,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           )}
 
           <div>
+<<<<<<< HEAD
             <label className="block text-xs font-bold text-gray-700 mb-1">{t.emailLabel || 'Email:'}</label>
+=======
+            <label className="block text-xs font-bold text-gray-700 mb-1">Email:</label>
+>>>>>>> origin/main
             <input 
               type="email" 
               required 
@@ -78,7 +98,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           </div>
 
           <div>
+<<<<<<< HEAD
             <label className="block text-xs font-bold text-gray-700 mb-1">{t.passwordLabel || 'Password:'}</label>
+=======
+            <label className="block text-xs font-bold text-gray-700 mb-1">Password:</label>
+>>>>>>> origin/main
             <input 
               type="password" 
               required 
@@ -91,34 +115,60 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
 
           {/* اختيار الدور (مالك أو باحث) */}
           <div>
+<<<<<<< HEAD
             <label className="block text-xs font-bold text-gray-700 mb-1">{t.roleLabel || 'Role:'}</label>
+=======
+            <label className="block text-xs font-bold text-gray-700 mb-1">Role:</label>
+>>>>>>> origin/main
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setRole('owner')}
+<<<<<<< HEAD
                 className={`py-2.5 rounded-xl text-xs font-extrabold border transition cursor-pointer ${
                   role === 'owner' ? 'bg-[#F4845F] text-white border-[#F4845F] shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                 }`}
               >
                 🏠 {t.ownerRole || 'Owner'}
+=======
+                className={`py-2.5 rounded-xl text-xs font-extrabold border transition ${
+                  role === 'owner' ? 'bg-[#F4845F] text-white border-[#F4845F] shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                🏠 {lang === 'ar' ? 'مالك' : 'Owner'}
+>>>>>>> origin/main
               </button>
               <button
                 type="button"
                 onClick={() => setRole('seeker')}
+<<<<<<< HEAD
                 className={`py-2.5 rounded-xl text-xs font-extrabold border transition cursor-pointer ${
                   role === 'seeker' ? 'bg-[#F4845F] text-white border-[#F4845F] shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                 }`}
               >
                 🎓 {t.seekerRole || 'Seeker'}
+=======
+                className={`py-2.5 rounded-xl text-xs font-extrabold border transition ${
+                  role === 'seeker' ? 'bg-[#F4845F] text-white border-[#F4845F] shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                🎓 {lang === 'ar' ? 'باحث' : 'Seeker'}
+>>>>>>> origin/main
               </button>
             </div>
           </div>
 
           <button 
             type="submit"
+<<<<<<< HEAD
             className="w-full bg-[#F4845F] hover:bg-[#e07553] text-white py-3 rounded-xl text-xs font-extrabold shadow-md transition mt-2 cursor-pointer"
           >
             {isSignUp ? t.createAccountBtn : t.connectBtn}
+=======
+            className="w-full bg-[#F4845F] hover:bg-[#e07553] text-white py-3 rounded-xl text-xs font-extrabold shadow-md transition mt-2"
+          >
+            {isSignUp ? (lang === 'ar' ? 'تسجيل' : 'Submit') : (lang === 'ar' ? 'دخول' : 'Login')}
+>>>>>>> origin/main
           </button>
         </form>
 
@@ -127,9 +177,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           <button 
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
+<<<<<<< HEAD
             className="text-xs text-[#4285F4] font-bold hover:underline cursor-pointer"
           >
             {isSignUp ? t.haveAccountPrompt : t.noAccountPrompt}
+=======
+            className="text-xs text-[#4285F4] font-bold hover:underline"
+          >
+            {isSignUp ? (lang === 'ar' ? 'عندك حساب؟ دخول' : 'Have an account?') : (lang === 'ar' ? 'ما عندكش حساب؟ تسجل' : 'Create account')}
+>>>>>>> origin/main
           </button>
         </div>
 

@@ -1,14 +1,27 @@
 import React from 'react';
 import { Language } from '../types';
+<<<<<<< HEAD
 import { translations } from '../translations'; // 👈 استيراد الترجمات المركزية
+=======
+>>>>>>> origin/main
 
 interface FooterProps {
   lang: Language;
 }
 
 export const Footer: React.FC<FooterProps> = ({ lang }) => {
+<<<<<<< HEAD
   // 👈 جلب الترجمات حسب اللغة المختارة
   const t = translations[lang] || translations.en;
+=======
+  const t = {
+    about: lang === 'ar' ? 'عن iRent' : lang === 'fr' ? 'À propos' : 'About iRent',
+    contact: lang === 'ar' ? 'اتصل بنا' : lang === 'fr' ? 'Contactez-nous' : 'Contact Us',
+    support: lang === 'ar' ? 'الدعم' : lang === 'fr' ? 'Support' : 'Support',
+    terms: lang === 'ar' ? 'شروط الاستخدام' : lang === 'fr' ? 'Conditions' : 'Terms of Use',
+    desc: lang === 'ar' ? 'أفضل منصة لإيجاد مسكنك ورفيق سكنك في المغرب.' : lang === 'fr' ? 'La meilleure plateforme pour trouver votre logement et colocataire au Maroc.' : 'The best platform to find your home and roommate in Morocco.',
+  };
+>>>>>>> origin/main
 
   return (
     <footer className="bg-white border-t border-gray-100 mt-12 py-12 px-6 transition-all duration-300">
@@ -19,7 +32,11 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
           <h3 className="text-xl font-black text-gray-900 mb-2 tracking-wide">
             i<span className="text-[#F4845F] transition-colors duration-300 hover:text-gray-900">Rent</span>.ma
           </h3>
+<<<<<<< HEAD
           <p className="text-sm text-gray-500 mb-4 max-w-sm leading-relaxed">{t.footerDesc}</p>
+=======
+          <p className="text-sm text-gray-500 mb-4 max-w-sm leading-relaxed">{t.desc}</p>
+>>>>>>> origin/main
           <a 
             href="mailto:support@irent.ma" 
             className="inline-block text-sm font-bold text-[#F4845F] hover:text-gray-900 transition-colors duration-300"
@@ -30,7 +47,11 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
         {/* روابط سريعة */}
         <div>
+<<<<<<< HEAD
           <h4 className="font-extrabold text-gray-900 mb-4 text-sm uppercase tracking-wider">{t.footerAboutTitle}</h4>
+=======
+          <h4 className="font-extrabold text-gray-900 mb-4 text-sm uppercase tracking-wider">{t.about}</h4>
+>>>>>>> origin/main
           <ul className="space-y-3 text-sm text-gray-600">
             <li>
               <span className="cursor-pointer transition-all duration-200 hover:text-[#F4845F] hover:translate-x-1 inline-block">
@@ -47,7 +68,11 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
 
         {/* معلومات الاتصال */}
         <div>
+<<<<<<< HEAD
           <h4 className="font-extrabold text-gray-900 mb-4 text-sm uppercase tracking-wider">{t.footerContactTitle}</h4>
+=======
+          <h4 className="font-extrabold text-gray-900 mb-4 text-sm uppercase tracking-wider">{t.contact}</h4>
+>>>>>>> origin/main
           <ul className="space-y-3 text-sm text-gray-600">
             <li className="hover:text-gray-900 transition-colors duration-200">
               📍 Khouribga, Morocco
@@ -61,11 +86,19 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
       </div>
       
       <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400">
+<<<<<<< HEAD
         <p>{t.footerRights}</p>
         <div className="flex space-x-4 mt-4 sm:mt-0">
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.privacyPolicy || 'Privacy'}</span>
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.termsOfUse || 'Terms'}</span>
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.security || 'Security'}</span>
+=======
+        <p>© 2026 iRent.ma - {lang === 'ar' ? 'جميع الحقوق محفوظة' : lang === 'fr' ? 'Tous droits réservés' : 'All rights reserved'}.</p>
+        <div className="flex space-x-4 mt-4 sm:mt-0">
+          <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">Privacy</span>
+          <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">Terms</span>
+          <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">Security</span>
+>>>>>>> origin/main
         </div>
       </div>
     </footer>

@@ -138,9 +138,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       available: 'متاح',
       detailsTitle: 'تفاصيل العقار',
       contactBtn: 'تواصل مع المعلن 💬',
+<<<<<<< HEAD
       noRentals: 'لم يتم العثور على عقارات لهذا البحث.',
       appTitle: 'حمّل تطبيق iRent.ma - ابحث عن منزلك بذكاء',
       appDesc: 'ابحث عن المنازل، تواصل مع الملاك، وجد شركاء السكن بسهولة من هاتفك. متوفر قريباً على iOS و Android.'
+=======
+      noRentals: 'لم يتم العثور على عقارات لهذا البحث.'
+>>>>>>> origin/main
     },
     fr: {
       ticker1: '🔥 TROUVEZ VOTRE MAISON OU COLOCATAIRE IDÉAL INSTANTANÉMENT AVEC iRent.MA 🚀',
@@ -149,8 +153,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       subtitle: 'Découvrez de nouveaux logements, trouvez des colocataires ou publiez votre espace.',
       tabHome: 'Je cherche un logement',
       tabRoommate: 'Je cherche un colocataire',
+<<<<<<< HEAD
       tabList: "J'ai un bien à louer",
       locationPlaceholder: "Entrez l'emplacement (ex: Rabat, Khouribga)...",
+=======
+      tabList: 'J\'ai un bien à louer',
+      locationPlaceholder: 'Entrez l\'emplacement (ex: Rabat, Khouribga)...',
+>>>>>>> origin/main
       roommateLocationPlaceholder: 'Emplacement pour colocataire...',
       propType: 'Type de bien',
       apt: 'Appartement',
@@ -167,10 +176,15 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       featured: 'LOCATIONS EN VEDETTE',
       available: 'Disponibles',
       detailsTitle: 'Détails du bien',
+<<<<<<< HEAD
       contactBtn: "Contacter l'annonceur 💬",
       noRentals: 'Aucune location trouvée pour cette recherche.',
       appTitle: "Téléchargez l'App iRent.ma - Trouvez Votre Logement Rapidement",
       appDesc: 'Trouvez des logements, contactez les propriétaires et gérez vos colocations facilement. Bientôt disponible sur iOS et Android.'
+=======
+      contactBtn: 'Contacter l\'annonceur 💬',
+      noRentals: 'Aucune location trouvée pour cette recherche.'
+>>>>>>> origin/main
     },
     en: {
       ticker1: '🔥 FIND YOUR DREAM HOME OR ROOMMATE INSTANTLY WITH iRENT.MA 🚀',
@@ -198,9 +212,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       available: 'Available',
       detailsTitle: 'Property Details',
       contactBtn: 'Contact Advertiser 💬',
+<<<<<<< HEAD
       noRentals: 'No rentals found for this search.',
       appTitle: 'Download the iRent.ma App - Find Your Home Smartly',
       appDesc: 'Find homes, connect with landlords, and manage roommates easily from your phone. Coming soon to iOS and Android.'
+=======
+      noRentals: 'No rentals found for this search.'
+>>>>>>> origin/main
     }
   };
 
@@ -293,7 +311,11 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
   });
 
   return (
+<<<<<<< HEAD
     <div className={`w-screen min-h-screen flex flex-col font-sans overflow-x-hidden bg-[#eef3f7] relative ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+=======
+    <div className={`w-full h-full flex flex-col font-sans overflow-hidden bg-[#eef3f7] relative ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
+>>>>>>> origin/main
       
       <style>{`
         @keyframes tickerMove {
@@ -346,11 +368,19 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       {activeDetailItem && (
         <div 
           onClick={() => setActiveDetailItem(null)}
+<<<<<<< HEAD
           className="fixed inset-0 bg-black/40 z-40 transition-opacity backdrop-blur-xs"
         />
       )}
 
       <div className={`fixed top-0 ${lang === 'ar' ? 'left-0' : 'right-0'} h-full w-full sm:w-[420px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between ${
+=======
+          className="absolute inset-0 bg-black/40 z-40 transition-opacity backdrop-blur-xs"
+        />
+      )}
+
+      <div className={`absolute top-0 ${lang === 'ar' ? 'left-0' : 'right-0'} h-full w-full sm:w-[420px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between ${
+>>>>>>> origin/main
         activeDetailItem ? 'translate-x-0' : (lang === 'ar' ? '-translate-x-full' : 'translate-x-full')
       }`}>
         {activeDetailItem && (
@@ -400,7 +430,11 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       </div>
 
       {/* المحتوى الرئيسي */}
+<<<<<<< HEAD
       <div className="w-full flex-1 flex flex-col px-4 md:px-8 pb-8 pt-6 md:pt-8 max-w-[1400px] mx-auto">
+=======
+      <div className="flex-1 flex flex-col px-4 md:px-8 pb-4 overflow-hidden pt-6 md:pt-8">
+>>>>>>> origin/main
         
         {/* 1. العنوان الرئيسي */}
         <div className="text-center pb-4 px-2 shrink-0 max-w-2xl mx-auto">
@@ -412,8 +446,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
           </p>
         </div>
 
+<<<<<<< HEAD
         {/* 2. الـ Inputs والـ Tabs */}
         <div className="w-full max-w-[950px] mx-auto z-30 shrink-0 mb-4">
+=======
+        {/* 2. الـ Inputs والـ Tabs (تمت إضافة تأثير Hover، تكبير خفيف، وأنيميشن سلسة للأزرار الثلاثة الفوقية أيضاً) */}
+        <div className="w-full max-w-[850px] mx-auto z-30 shrink-0 mb-4">
+>>>>>>> origin/main
           
           <div className="flex gap-1.5 px-2">
             <button
@@ -632,6 +671,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* الخريطة */}
         <div className="w-full max-w-[1350px] mx-auto h-[480px] rounded-3xl border-2 border-[#F4845F]/40 shadow-xl overflow-hidden bg-[#111] relative mb-12">
           <APIProvider apiKey={'AIzaSyB2TfMELF7ntXHr0OZl6iSZqJSnlgyD0tw'}>
@@ -803,6 +843,93 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
 
         </div>
 
+=======
+        {/* الخريطة والقائمة الجانبية */}
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
+          
+          <div className="flex-1 rounded-3xl border-2 border-[#F4845F]/40 shadow-xl overflow-hidden bg-[#111] min-h-[350px] relative">
+            <APIProvider apiKey={'AIzaSyB2TfMELF7ntXHr0OZl6iSZqJSnlgyD0tw'}>
+              <Map 
+                center={cameraProps.center} 
+                zoom={cameraProps.zoom} 
+                tilt={cameraProps.tilt}
+                heading={cameraProps.heading}
+                mapId={'bf51a910020fa25a'}
+                renderingType={'VECTOR'}
+                onCameraChanged={(ev) => setCameraProps(ev.detail)}
+                style={{ width: '100%', height: '100%' }}
+              >
+                {filteredMarkers.map((m) => (
+                  <AdvancedMarker 
+                    key={m.id} 
+                    position={{ lat: m.lat, lng: m.lng }} 
+                    onClick={() => {
+                      setSelectedMarker(m);
+                      setActiveDetailItem(m);
+                    }}
+                  >
+                    <div className="marker-3d-bounce group cursor-pointer flex flex-col items-center py-2">
+                      <div className="bg-red-600 text-white font-black text-xs md:text-sm px-3.5 py-1.5 rounded-full shadow-2xl border-2 border-white mb-1.5 whitespace-nowrap transition-all duration-300 transform scale-100 group-hover:scale-135 group-hover:-translate-y-2 origin-bottom">
+                        {m.price}
+                      </div>
+                      <div className="bg-white p-2.5 rounded-2xl shadow-2xl border-2 border-red-200 flex items-center justify-center transition-all duration-300 group-hover:scale-130">
+                        <svg viewBox="0 0 24 24" fill="#DC2626" className="w-6 h-6">
+                          <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </AdvancedMarker>
+                ))}
+              </Map>
+            </APIProvider>
+          </div>
+
+          <div className="w-full lg:w-[350px] bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-4 flex flex-col overflow-y-auto shrink-0 border border-gray-100">
+            <div className="flex justify-between items-center mb-3 px-1">
+              <h3 className="font-black text-xs text-gray-500 tracking-wider">{currentLang.featured}</h3>
+              <span className="bg-orange-100 text-[#F4845F] text-[10px] font-black px-2.5 py-0.5 rounded-full">
+                {filteredMarkers.length} {currentLang.available}
+              </span>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {filteredMarkers.length > 0 ? (
+                filteredMarkers.map((item) => (
+                  <div 
+                    key={item.id} 
+                    onClick={() => {
+                      setSelectedMarker(item);
+                      setActiveDetailItem(item);
+                      setCameraProps({ center: { lat: item.lat, lng: item.lng }, zoom: 18, tilt: 75, heading: 60 });
+                    }}
+                    className="cursor-pointer bg-white p-2.5 rounded-2xl hover:shadow-lg hover:border-[#F4845F]/50 border border-gray-100 transition-all duration-300 group"
+                  >
+                    <div className="h-32 rounded-xl overflow-hidden mb-2.5 relative bg-gray-100">
+                      <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-115 transition duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black text-[#F4845F] shadow-md">
+                        {item.price}
+                      </span>
+                    </div>
+                    <h4 className="font-black text-xs text-gray-900 leading-snug group-hover:text-[#F4845F] transition-colors">
+                      {item.title[lang === 'ar' || lang === 'fr' ? lang : 'en']}
+                    </h4>
+                    <p className="text-[10px] text-gray-400 font-bold mt-1 flex items-center gap-1">
+                      <span>📍</span> {item.city[lang === 'ar' || lang === 'fr' ? lang : 'en'].toUpperCase()}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <span className="text-2xl mb-2 block">🏠</span>
+                  <p className="text-xs text-gray-400 font-bold">{currentLang.noRentals}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+>>>>>>> origin/main
       </div>
     </div>
   );
