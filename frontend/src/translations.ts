@@ -64,6 +64,8 @@ export const translations = {
     wifiAvailable: 'فايبر متوفر',
     wifiNotAvailable: 'بدون فايبر',
     viewDetails: 'عرض التفاصيل والمراسلة 💬',
+    comingSoonBadge: "قريباً جداً في المغرب",
+  alertMessage: "🚀 قريباً في المغرب!"
     
   },
   fr: {
@@ -129,6 +131,8 @@ export const translations = {
     wifiAvailable: 'WiFi inclus',
     wifiNotAvailable: 'Sans WiFi',
     viewDetails: 'Voir détails & Chat 💬',
+    comingSoonBadge: "Bientôt disponible au Maroc",
+    alertMessage: "🚀 Bientôt au Maroc !"
   },
   en: {
     home: 'Home',
@@ -193,5 +197,7 @@ export const translations = {
     wifiAvailable: 'WiFi Available',
     wifiNotAvailable: 'No WiFi',
     viewDetails: 'View Details & Chat 💬',
+    comingSoonBadge: "Coming Soon to Morocco",
+    alertMessage: "🚀 Coming soon to Morocco!"
   }
 };

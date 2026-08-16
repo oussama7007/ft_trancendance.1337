@@ -718,16 +718,16 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
           <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -left-20 -top-20 w-80 h-80 bg-black/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+          <div className="relative z-40 flex flex-col lg:flex-row items-center justify-between gap-10">
             
             <div className="flex-1 flex flex-col items-start text-start">
         <div 
-          onClick={() => alert('🚀 قريباً في المغرب!')}
-          className="bg-white-500/10 hover:bg-white-500/20 text-white-600 font-black px-6 py-2.5 rounded-full text-xs mb-8 shadow-sm hover:shadow-md flex items-center gap-2.5 border border-orange-500/20 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md animate-bounce"
-        >
-          <span className="w-2 h-2 rounded-full bg-white-500 animate-ping"></span>
-          <span>قريباً جداً في المغرب / Coming Soon</span>
-        </div>
+            onClick={() => alert('🚀 قريباً في المغرب!')}
+            className="bg-white/15 hover:bg-white/25 text-white font-black px-7 py-3 rounded-full text-sm md:text-base mb-8 shadow-lg hover:shadow-xl flex items-center gap-3 border border-white/30 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md animate-bounce"
+          >
+            {/* <span className="w-3 h-3 rounded-full bg-white"></span> */}
+            <span>قريباً جداً في المغرب / Coming Soon</span>
+          </div>
 
               <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-snug mb-4">
                 {currentLang.appTitle}
@@ -738,29 +738,34 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                <a 
-                  href="#appstore" 
-                  onClick={(e) => { e.preventDefault(); alert('🚀 Application coming soon to App Store!'); }} 
-                  className="bg-black hover:bg-gray-900 text-white px-6 py-3.5 rounded-2xl flex items-center gap-3 cursor-pointer shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
-                >
-                  <span className="text-3xl"></span>
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-gray-300 uppercase tracking-wider">Download on the</span>
-                    <span className="text-sm font-black -mt-0.5">App Store</span>
-                  </div>
-                </a>
+          <a 
+              href="#appstore" 
+              onClick={(e) => { e.preventDefault(); alert('🚀 Application coming soon to App Store!'); }} 
+              className="bg-black hover:bg-zinc-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-3 cursor-pointer shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-zinc-800"
+            >
+              <span className="text-3xl leading-none"></span>
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] text-zinc-400 font-medium uppercase tracking-wider">Download on the</span>
+                <span className="text-xs md:text-sm font-bold tracking-wide -mt-0.5">App Store</span>
+              </div>
+            </a>
 
-                <a 
-                  href="#googleplay" 
-                  onClick={(e) => { e.preventDefault(); alert('🚀 Application coming soon to Google Play!'); }} 
-                  className="bg-black hover:bg-gray-900 text-white px-6 py-3.5 rounded-2xl flex items-center gap-3 cursor-pointer shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
-                >
-                  <span className="text-2xl">▶</span>
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-gray-300 uppercase tracking-wider">GET IT ON</span>
-                    <span className="text-sm font-black -mt-0.5">Google Play</span>
-                  </div>
-                </a>
+          <a 
+              href="#googleplay" 
+              onClick={(e) => { e.preventDefault(); alert('🚀 Application coming soon to Google Play!'); }} 
+              className="bg-black hover:bg-zinc-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-3 cursor-pointer shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-zinc-800"
+            >
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 512 512" fill="currentColor">
+                <path fill="#EA4335" d="M325.3 234.3L104.2 13c-7.2-4.3-16.1-4.3-23.3 0-7.2 4.3-11.6 12-11.6 20.4v445.2c0 8.4 4.4 16.1 11.6 20.4 3.6 2.1 7.7 3.2 11.7 3.2 4.1 0 8.2-1.1 11.7-3.2l221.1-221.3c6.3-6.4 6.3-16.8 0-23.2z"/>
+                <path fill="#FBBC04" d="M381.1 290.1l-55.8-55.8L104.2 455.7c5.9 6 15.6 6.5 22.1 1.2l254.8-166.8z"/>
+                <path fill="#4285F4" d="M381.1 221.9L126.3 55.1c-6.5-5.3-16.2-4.8-22.1 1.2l221.1 221.4 55.8-55.8z"/>
+                <path fill="#34A853" d="M325.3 277.7l55.8 55.8 74.5-48.8c9.6-6.3 12.2-19.3 5.9-28.9-2.1-3.2-5.2-5.7-8.8-7.1l-67.4-38-59.2 59z"/>
+              </svg>
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] text-zinc-400 font-medium uppercase tracking-wider">GET IT ON</span>
+                <span className="text-xs md:text-sm font-bold tracking-wide -mt-0.5">Google Play</span>
+              </div>
+            </a>
               </div>
             </div>
 
