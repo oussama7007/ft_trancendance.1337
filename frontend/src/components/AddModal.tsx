@@ -1,0 +1,88 @@
+import React, { useState } from 'react';
+import { Listing } from '../types';
+import { translations } from '../translations'; // 👈 استيراد الترجمات
+
+interface AddModalProps {
+  onClose: () => void;
+  onAdd: (listing: Listing) => void;
+  lang: 'ar' | 'fr' | 'en';
+}
+
+export const AddModal: React.FC<AddModalProps> = ({ onClose, onAdd, lang }) => {
+  const [title, setTitle] = useState('');
+  const [price, setPrice] = useState('');
+  const [city, setCity] = useState('');
+
+  // 👈 جلب الترجمات حسب اللغة
+  const t = translations[lang] || translations.en;
+
+  const handleSubmit = () => {
+    // التحقق باش ما يصيفطش معلومات خاوية
+    if (!title || !price || !city) return;
+
+    const newListing: Listing = {
+      id: Date.now(),
+      title: { en: title, fr: title, ar: title },
+      description: { en: 'New listing', fr: 'Nouvelle annonce', ar: 'إعلان جديد' },
+      city: city,
+      cityEnFr: city,
+      district: 'City Center', // تقدر تزيد حقل ديال الحي من بعد
+      districtEnFr: 'City Center',
+      price: Number(price),
+      bedrooms: 1,
+      hasWifi: true,
+      imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=400',
+      ownerName: 'User'
+    };
+    
+    onAdd(newListing);
+    onClose();
+  };
+
+  return (
+    // 👈 زدت backdrop-blur باش تعطي تأثير زجاجي واعر فاش كيتحل المودال
+    <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all">
+      <div className="bg-white p-6 md:p-8 rounded-[2rem] w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+        
+        <h2 className="text-2xl font-black mb-6 text-gray-900">
+          {t.addListingTitle}
+        </h2>
+        
+        <div className="space-y-4 mb-8">
+          <input 
+            className="w-full bg-gray-50/50 border border-gray-200 p-3.5 rounded-2xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4845F]/50 focus:border-[#F4845F] transition-all" 
+            placeholder={t.titlePlaceholder} 
+            onChange={(e) => setTitle(e.target.value)} 
+          />
+          <input 
+            className="w-full bg-gray-50/50 border border-gray-200 p-3.5 rounded-2xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4845F]/50 focus:border-[#F4845F] transition-all" 
+            placeholder={t.pricePlaceholder} 
+            type="number" 
+            onChange={(e) => setPrice(e.target.value)} 
+          />
+          <input 
+            className="w-full bg-gray-50/50 border border-gray-200 p-3.5 rounded-2xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4845F]/50 focus:border-[#F4845F] transition-all" 
+            placeholder={t.cityPlaceholder} 
+            onChange={(e) => setCity(e.target.value)} 
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <button 
+            onClick={onClose} 
+            className="flex-1 py-3.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold transition-all active:scale-95"
+          >
+            {t.cancelBtn}
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            className="flex-1 py-3.5 rounded-2xl bg-[#F4845F] hover:bg-[#e07553] shadow-lg shadow-[#F4845F]/30 text-white text-sm font-black transition-all active:scale-95"
+          >
+            {t.postBtn}
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  );
+};
