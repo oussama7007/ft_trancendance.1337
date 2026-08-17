@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ lang }) => {
       
       <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400">
         <p>{t.footerRights}</p>
-        <div className="flex space-x-4 mt-4 sm:mt-0">
+        <div className="flex gap-2.5 mt-4 sm:mt-0 items-center">
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.privacyPolicy || 'Privacy'}</span>
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.termsOfUse || 'Terms'}</span>
           <span className="hover:text-[#F4845F] transition-colors duration-200 cursor-pointer">{t.security || 'Security'}</span>

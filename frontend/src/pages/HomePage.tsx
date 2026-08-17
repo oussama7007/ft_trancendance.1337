@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Listing, Language } from '../types';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { translations } from '../translations';
@@ -8,6 +8,7 @@ interface HomePageProps {
   listings: Listing[];
   onSelectListing: (item: Listing) => void;
   isLoggedIn: boolean;
+  onSearch?: (query: string) => void; // 👈 اختياري: كيسمح لزر البحث يمرر الكلمة المكتوبة لصفحة ListingsPage عبر App
 }
 
 const CITIES = [
@@ -23,7 +24,7 @@ const CITIES = [
   { ar: 'تطوان', fr: 'Tetouan', en: 'Tetouan', lat: 35.5889, lng: -5.3626 }
 ];
 
-export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listings, onSelectListing, isLoggedIn }) => {
+export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listings, onSelectListing, isLoggedIn, onSearch }) => {
   const [activeTab, setActiveTab] = useState<'home' | 'roommate' | 'list'>('home');
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,9 +49,10 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
     heading: 30
   });
 
-  const [mapMarkers, setMapMarkers] = useState([
+  // عقارات تجريبية (Demo) كنعرضوها دائماً كـ "بذرة" محتوى، حتى قبل ما يكون عندنا عقارات حقيقية
+  const demoMarkers = [
     { 
-      id: 1, 
+      id: 'demo-1', 
       city: { en: 'Rabat', fr: 'Rabat', ar: 'الرباط' }, 
       lat: 34.0209, 
       lng: -6.8416, 
@@ -62,7 +64,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       description: { en: 'Fully furnished apartment close to city center and transport.', fr: 'Appartement entièrement meublé près du centre-ville et des transports.', ar: 'شقة مفروشة بالكامل قريبة من وسط المدينة والمواصلات.' } 
     },
     { 
-      id: 2, 
+      id: 'demo-2', 
       city: { en: 'Casablanca', fr: 'Casablanca', ar: 'الدار البيضاء' }, 
       lat: 33.5883, 
       lng: -7.6114, 
@@ -74,7 +76,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       description: { en: 'Nice studio near Maarif, fully equipped.', fr: 'Beau studio près de Maarif, entièrement équipé.', ar: 'ستوديو جميل قرب المعاريف، مجهز بالكامل.' } 
     },
     { 
-      id: 3, 
+      id: 'demo-3', 
       city: { en: 'Marrakech', fr: 'Marrakech', ar: 'مراكش' }, 
       lat: 31.6295, 
       lng: -7.9811, 
@@ -86,7 +88,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       description: { en: 'Wonderful traditional riad with authentic Moroccan design.', fr: 'Magnifique riad traditionnel au design marocain authentique.', ar: 'رياض تقليدي رائع بتصميم مغربي أصيل.' } 
     },
     { 
-      id: 4, 
+      id: 'demo-4', 
       city: { en: 'Khouribga', fr: 'Khouribga', ar: 'خريبكة' }, 
       lat: 32.8817, 
       lng: -6.9063, 
@@ -98,7 +100,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       description: { en: 'Clean and secure apartment in a strategic location in Khouribga.', fr: 'Appartement propre et sécurisé dans un emplacement stratégique à Khouribga.', ar: 'شقة نظيفة وآمنة في موقع استراتيجي بخريبكة.' } 
     },
     { 
-      id: 5, 
+      id: 'demo-5', 
       city: { en: 'Tangier', fr: 'Tanger', ar: 'طنجة' }, 
       lat: 35.7595, 
       lng: -5.8340, 
@@ -109,7 +111,43 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=600', 
       description: { en: 'Apartment with a stunning direct view of the Mediterranean Sea.', fr: 'Appartement avec une vue directe imprenable sur la mer Méditerranée.', ar: 'شقة بإطلالة مباشرة مذهلة على البحر الأبيض المتوسط.' } 
     }
-  ]);
+  ];
+
+  // 👈 تحويل العقارات الحقيقية (اللي جايين من props.listings) لنفس شكل الماركر ديال الخريطة،
+  // ونربطهم بإحداثيات المدينة عبر مصفوفة CITIES، لأن نوع Listing ما فيهش lat/lng مباشرة.
+  const findCityCoords = (cityAr?: string, cityEnFr?: string) => {
+    const match = CITIES.find(c =>
+      (cityAr && (c.ar === cityAr || c.ar.includes(cityAr) || cityAr.includes(c.ar))) ||
+      (cityEnFr && (c.fr.toLowerCase() === cityEnFr.toLowerCase() || c.en.toLowerCase() === cityEnFr.toLowerCase()))
+    );
+    return match || CITIES.find(c => c.en === 'Khouribga') || CITIES[0];
+  };
+
+  const mapMarkers = useMemo(() => {
+    const jitter = () => (Math.random() - 0.5) * 0.01; // باش الماركرات ديال نفس المدينة ما يتراكبوش فوق بعضهم
+    const realMarkers = (listings || []).map((item) => {
+      const cityMatch = findCityCoords((item as any).city, (item as any).cityEnFr);
+      const district = (item as any).district;
+      const districtEnFr = (item as any).districtEnFr;
+      return {
+        id: `listing-${item.id}`,
+        city: { ar: cityMatch.ar, fr: cityMatch.fr, en: cityMatch.en },
+        lat: cityMatch.lat + jitter(),
+        lng: cityMatch.lng + jitter(),
+        title: item.title,
+        price: `${item.price} DH`,
+        category: 'home',
+        type: 'apartment',
+        image: (item as any).imageUrl,
+        description: {
+          ar: district ? `${district} - ${cityMatch.ar}` : cityMatch.ar,
+          fr: districtEnFr ? `${districtEnFr} - ${cityMatch.fr}` : cityMatch.fr,
+          en: districtEnFr ? `${districtEnFr} - ${cityMatch.en}` : cityMatch.en,
+        }
+      };
+    });
+    return [...realMarkers, ...demoMarkers];
+  }, [listings]);
 
   const t = {
     ar: {
@@ -270,6 +308,17 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
         heading: 45
       }));
     }
+  };
+
+  const handleSearchClick = () => {
+    if (activeTab === 'roommate') {
+      // ⚠️ ملاحظة: المشروع ما فيهش بعد نوع بيانات خاص بـ "شركاء السكن" (roommate profiles) ولا صفحة مخصصة ليهم،
+      // لذلك كنستعملو نفس صفحة العقارات مؤقتاً كحل بديل. خص تبنى صفحة/نموذج بيانات مخصص باش الفلترة تولي حقيقية.
+      onSearch?.(roommateLocation || budget);
+    } else {
+      onSearch?.(searchQuery);
+    }
+    setActivePage('listings');
   };
 
   const filteredMarkers = mapMarkers.filter(m => {
@@ -632,7 +681,10 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
               </>
             )}
 
-            <button className="w-full md:w-auto bg-[#F4845F] text-white px-7 py-3 rounded-xl font-black text-xs hover:bg-[#e07553] transition cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0">
+            <button
+              onClick={handleSearchClick}
+              className="w-full md:w-auto bg-[#F4845F] text-white px-7 py-3 rounded-xl font-black text-xs hover:bg-[#e07553] transition cursor-pointer shadow-md flex items-center justify-center gap-2 shrink-0"
+            >
               {currentLang.searchBtn}
             </button>
           </div>

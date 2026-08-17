@@ -91,7 +91,8 @@ function App() {
         handleLogout={handleLogout}
       />
 
-      <div className="flex-1 w-full relative flex flex-col">
+      {/* هاد الـ main/div كياخد flex-1 باش يعمر المساحة الخاوية كاملة */}
+      <main className="flex-1 w-full relative flex flex-col">
         {activePage === 'home' && (
           <HomePage 
             setActivePage={setActivePage} 
@@ -217,9 +218,8 @@ function App() {
             </div>
           </div>
         )}
-
-        <Footer lang={lang} />
-      </div>
+      </main>
+      <Footer lang={lang} />
     </div>
   );
 }

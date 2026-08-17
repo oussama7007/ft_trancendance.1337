@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Listing, Language } from '../types';
 import { HouseCard } from '../components/HouseCard';
 
@@ -9,8 +9,11 @@ interface ListingsPageProps {
   t: any;
   onSearchChange?: (query: string) => void;
   onCitySelect?: (cityName: string) => void;
-  onAddListing?: (newListing: Listing) => void; // دالة لإضافة العقار مباشرة للقائمة والأب
+  onAddListing?: (newListing: Listing) => void | Promise<void>; // دالة لإضافة العقار مباشرة للقائمة والأب
+  initialQuery?: string; // 👈 بحث جاي من HomePage (زر البحث)
 }
+
+const ITEMS_PER_PAGE = 9;
 
 export const ListingsPage: React.FC<ListingsPageProps> = ({ 
   lang, 
@@ -19,21 +22,65 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
   t,
   onSearchChange,
   onCitySelect,
-  onAddListing
+  onAddListing,
+  initialQuery
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxPrice, setMaxPrice] = useState(3000);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newCity, setNewCity] = useState('');
+  const [formError, setFormError] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [newBedrooms, setNewBedrooms] = useState('1');
+  const [newHasWifi, setNewHasWifi] = useState(false);
+  const [newOwnerName, setNewOwnerName] = useState('');
+
+  // 👈 المفضلة: كنخزنوها فـ localStorage باش تبقى محفوظة حتى بعد ما يسد المستخدم الصفحة
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem('irent_favorites');
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try {
+        localStorage.setItem('irent_favorites', JSON.stringify(Array.from(next)));
+      } catch {
+        // localStorage قد يكون غير متاح (وضع تصفح خاص مثلاً)؛ نتجاهلو الخطأ بلا ما نكسرو الواجهة
+      }
+      return next;
+    });
+  };
   
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>('');
+
+  // 👈 كنجيبو البحث اللي دار المستخدم فـ HomePage (إلا كاين) ونحطوه هنا تلقائياً
+  useEffect(() => {
+    if (initialQuery && initialQuery.trim() !== '') {
+      setSearchQuery(initialQuery);
+      if (onSearchChange) onSearchChange(initialQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
+
+  // كل ما تبدلات معايير البحث، نرجعو لصفحة 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, maxPrice]);
 
   const pageTexts = {
     ar: {
@@ -46,11 +93,25 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       priceLabel: 'الثمن (DH)',
       cityLabel: 'المدينة',
       cityPlaceholder: 'خريبكة',
+      bedroomsLabel: 'عدد الغرف',
+      wifiLabel: '📶 كاين الواي فاي',
+      ownerNameLabel: 'اسمك (كيبان للمهتمين)',
+      ownerNamePlaceholder: 'مثال: يوسف',
       imagesLabel: 'صور العقار (يمكنك اختيار عدة صور)',
       videoLabel: 'فيديو العقار (جولة داخل الدار)',
       publishBtn: 'نشر العقار الآن',
+      publishingBtn: 'جاري النشر...',
       successAlert: 'تم نشر العقار بنجاح!',
-      noResults: 'لم يتم العثور على عقارات.'
+      errorAlert: 'وقع خطأ أثناء النشر، حاول مرة أخرى.',
+      validationTitle: 'خصك تكمل هاد المعلومات قبل النشر:',
+      validationTitleMissing: 'العنوان أو الوصف',
+      validationPriceMissing: 'الثمن (لازم يكون رقم أكبر من صفر)',
+      validationCityMissing: 'المدينة',
+      validationImageMissing: 'صورة واحدة على الأقل',
+      noResults: 'لم يتم العثور على عقارات.',
+      prevPage: '‹ السابق',
+      nextPage: 'التالي ›',
+      pageOf: 'صفحة {current} من {total}'
     },
     fr: {
       popularCities: 'Villes populaires:',
@@ -62,11 +123,25 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       priceLabel: 'Prix (DH)',
       cityLabel: 'Ville',
       cityPlaceholder: 'Khouribga',
+      bedroomsLabel: 'Nombre de chambres',
+      wifiLabel: '📶 Wifi disponible',
+      ownerNameLabel: 'Votre nom (visible aux intéressés)',
+      ownerNamePlaceholder: 'Ex: Youssef',
       imagesLabel: 'Photos du bien (plusieurs choix possibles)',
       videoLabel: 'Vidéo du bien (visite virtuelle)',
       publishBtn: 'Publier',
+      publishingBtn: 'Publication en cours...',
       successAlert: 'Bien publié avec succès!',
-      noResults: 'Aucune location trouvée.'
+      errorAlert: 'Une erreur est survenue, veuillez réessayer.',
+      validationTitle: 'Merci de compléter les champs suivants avant de publier :',
+      validationTitleMissing: 'Titre ou description',
+      validationPriceMissing: 'Prix (doit être un nombre supérieur à 0)',
+      validationCityMissing: 'Ville',
+      validationImageMissing: 'Au moins une image',
+      noResults: 'Aucune location trouvée.',
+      prevPage: '‹ Précédent',
+      nextPage: 'Suivant ›',
+      pageOf: 'Page {current} sur {total}'
     },
     en: {
       popularCities: 'Popular Cities:',
@@ -78,11 +153,25 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       priceLabel: 'Price (DH)',
       cityLabel: 'City',
       cityPlaceholder: 'Khouribga',
+      bedroomsLabel: 'Number of Rooms',
+      wifiLabel: '📶 Wifi Available',
+      ownerNameLabel: 'Your Name (shown to interested people)',
+      ownerNamePlaceholder: 'Ex: Youssef',
       imagesLabel: 'Property Images (Multiple allowed)',
       videoLabel: 'Property Video (Tour inside)',
       publishBtn: 'Publish Now',
+      publishingBtn: 'Publishing...',
       successAlert: 'Property published successfully!',
-      noResults: 'No listings found.'
+      errorAlert: 'Something went wrong, please try again.',
+      validationTitle: 'Please complete the following before publishing:',
+      validationTitleMissing: 'Title or description',
+      validationPriceMissing: 'Price (must be a number greater than 0)',
+      validationCityMissing: 'City',
+      validationImageMissing: 'At least one image',
+      noResults: 'No listings found.',
+      prevPage: '‹ Previous',
+      nextPage: 'Next ›',
+      pageOf: 'Page {current} of {total}'
     }
   };
 
@@ -132,8 +221,35 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
     return searchableText.includes(query) && item.price <= maxPrice;
   });
 
-  const handlePublish = () => {
-    // 1. إنشاء كائن العقار الجديد لكي يظهر فوراً في الـ Cards والخريطة
+  // Pagination: كنقسمو النتائج لصفحات باش ما تتقلش المتصفح كيتحمل كلشي دفعة وحدة
+  const totalPages = Math.max(1, Math.ceil(filteredListings.length / ITEMS_PER_PAGE));
+  const paginatedListings = filteredListings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const validatePublishForm = (): string[] => {
+    const missing: string[] = [];
+    if (!newTitle.trim()) missing.push(currentT.validationTitleMissing);
+    if (!newPrice || Number(newPrice) <= 0) missing.push(currentT.validationPriceMissing);
+    if (!newCity.trim()) missing.push(currentT.validationCityMissing);
+    if (selectedImages.length === 0) missing.push(currentT.validationImageMissing);
+    return missing;
+  };
+
+  const handlePublish = async () => {
+    // 1. التحقق من البيانات قبل أي شيء (Form Validation)
+    const missingFields = validatePublishForm();
+    if (missingFields.length > 0) {
+      setFormError(`${currentT.validationTitle} ${missingFields.join('، ')}`);
+      return;
+    }
+    setFormError('');
+
+    // 2. إنشاء كائن العقار الجديد لكي يظهر فوراً في الـ Cards والخريطة
+    //    ⚠️ هاد الحقول (imageUrl, ownerName, bedrooms, hasWifi) هي بالضبط اللي كيقراهم HouseCard.tsx —
+    //    قبل، كان كاين خطأ حقيقي هنا: كنا كنبعثو "image" بدل "imageUrl"، وما كناش كنبعثو ownerName/bedrooms/hasWifi خالص،
+    //    فكانت الصورة ما كتبانش (broken image) وكانت هاد الحقول كتبان "undefined" فكل عقار جديد.
     const newListingItem: Listing = {
       id: Date.now().toString(),
       title: {
@@ -142,19 +258,17 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
         en: newTitle,
       },
       price: Number(newPrice) || 0,
-      city: newCity || 'خريبكة',
-      cityEnFr: newCity || 'Khouribga',
+      city: newCity,
+      cityEnFr: newCity,
       district: 'حي جديد',
       districtEnFr: 'New District',
-      image: imagePreviews.length > 0 ? imagePreviews[0] : 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2',
+      imageUrl: imagePreviews.length > 0 ? imagePreviews[0] : 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2',
       images: imagePreviews,
       video: videoPreview || undefined,
+      ownerName: newOwnerName.trim() || (lang === 'ar' ? 'مستخدم iRent.ma' : lang === 'fr' ? 'Utilisateur iRent.ma' : 'iRent.ma user'),
+      bedrooms: Number(newBedrooms) || 1,
+      hasWifi: newHasWifi,
     };
-
-    // 2. إرسال العقار للمكون الأب ليتم تحديث القائمتين (Cards + Map)
-    if (onAddListing) {
-      onAddListing(newListingItem);
-    }
 
     // 3. تجهيز الـ FormData للباك إند (في حال أردت ربطه لاحقاً)
     const formData = new FormData();
@@ -163,20 +277,35 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
     formData.append('city', newCity);
     selectedImages.forEach((file) => formData.append('images', file));
     if (selectedVideo) formData.append('video', selectedVideo);
-
     console.log("FormData prepared for backend:", formData);
 
-    alert(currentT.successAlert);
-    
-    // 4. إغلاق النافذة وتفريغ الحقول
-    setIsAddModalOpen(false);
-    setNewTitle('');
-    setNewPrice('');
-    setNewCity('');
-    setSelectedImages([]);
-    setImagePreviews([]);
-    setSelectedVideo(null);
-    setVideoPreview('');
+    // 4. إرسال العقار للمكون الأب (App.tsx كيدير النداء الفعلي لـ apiService.createListing وهو async)
+    //    كنستنّاو (await) الرد الحقيقي باش الـ spinner يعكس الحالة الحقيقية للنشر، ماشي مجرد تأخير وهمي.
+    setIsPublishing(true);
+    try {
+      if (onAddListing) {
+        await onAddListing(newListingItem);
+      }
+      alert(currentT.successAlert);
+
+      // 5. إغلاق النافذة وتفريغ الحقول (غير إلا نجح النشر)
+      setIsAddModalOpen(false);
+      setNewTitle('');
+      setNewPrice('');
+      setNewCity('');
+      setSelectedImages([]);
+      setImagePreviews([]);
+      setSelectedVideo(null);
+      setVideoPreview('');
+      setNewBedrooms('1');
+      setNewHasWifi(false);
+      setNewOwnerName('');
+    } catch (error) {
+      console.error('Error publishing listing:', error);
+      setFormError(currentT.errorAlert);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -212,7 +341,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
         </div>
 
         <button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => { setFormError(''); setIsAddModalOpen(true); }}
           className="bg-[#F4845F] hover:bg-[#e07553] text-white text-xs font-black px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <span>➕</span> {currentT.addListingBtn}
@@ -248,11 +377,42 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
 
       {/* قائمة العقارات */}
       {filteredListings.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredListings.map((item) => (
-            <HouseCard key={item.id} item={item} lang={lang} onSelect={onSelectListing} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedListings.map((item) => (
+              <HouseCard 
+                key={item.id} 
+                item={item} 
+                lang={lang} 
+                onSelect={onSelectListing} 
+                isFavorite={favorites.has(item.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-xl text-xs font-black bg-white border border-gray-200 text-gray-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#F4845F] hover:text-[#F4845F] transition cursor-pointer"
+              >
+                {currentT.prevPage}
+              </button>
+              <span className="text-xs font-bold text-gray-500">
+                {currentT.pageOf.replace('{current}', String(currentPage)).replace('{total}', String(totalPages))}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-xl text-xs font-black bg-white border border-gray-200 text-gray-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#F4845F] hover:text-[#F4845F] transition cursor-pointer"
+              >
+                {currentT.nextPage}
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="bg-white rounded-[2.5rem] p-10 text-center border border-dashed border-gray-200 space-y-3 shadow-sm">
           <p className="text-5xl">🔍🇲🇦</p>
@@ -318,6 +478,40 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-600 mb-1">{currentT.ownerNameLabel}</label>
+                <input 
+                  type="text" 
+                  value={newOwnerName}
+                  onChange={(e) => setNewOwnerName(e.target.value)}
+                  placeholder={currentT.ownerNamePlaceholder}
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-gray-800 focus:outline-none focus:border-[#F4845F]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-600 mb-1">{currentT.bedroomsLabel}</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  value={newBedrooms}
+                  onChange={(e) => setNewBedrooms(e.target.value)}
+                  placeholder="1"
+                  className="w-full border border-gray-200 bg-gray-50 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-gray-800 focus:outline-none focus:border-[#F4845F]"
+                />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2 text-[11px] font-bold text-gray-600 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={newHasWifi}
+                onChange={(e) => setNewHasWifi(e.target.checked)}
+                className="w-4 h-4 accent-[#F4845F] cursor-pointer"
+              />
+              {currentT.wifiLabel}
+            </label>
+
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-600">{currentT.imagesLabel}</label>
               <input 
@@ -367,11 +561,21 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
               )}
             </div>
 
+            {formError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 text-[11px] font-bold rounded-xl px-3.5 py-2.5 leading-relaxed">
+                {formError}
+              </div>
+            )}
+
             <button 
               onClick={handlePublish}
-              className="w-full bg-[#F4845F] text-white py-3 rounded-xl font-black text-xs hover:bg-[#e07553] transition shadow-md mt-2 cursor-pointer"
+              disabled={isPublishing}
+              className="w-full bg-[#F4845F] text-white py-3 rounded-xl font-black text-xs hover:bg-[#e07553] transition shadow-md mt-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {currentT.publishBtn}
+              {isPublishing && (
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              )}
+              {isPublishing ? currentT.publishingBtn : currentT.publishBtn}
             </button>
 
           </div>
