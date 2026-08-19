@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Listing, Language } from '../types';
+import { Listing, Language, User } from '../types';
 import { HouseCard } from '../components/HouseCard';
 
 interface ListingsPageProps {
@@ -9,8 +9,10 @@ interface ListingsPageProps {
   t: any;
   onSearchChange?: (query: string) => void;
   onCitySelect?: (cityName: string) => void;
-  onAddListing?: (newListing: Listing) => void | Promise<void>; // دالة لإضافة العقار مباشرة للقائمة والأب
-  initialQuery?: string; // 👈 بحث جاي من HomePage (زر البحث)
+  onAddListing?: (newListing: Listing) => void | Promise<void>; 
+  initialQuery?: string;
+  currentUser?: User | null;
+  onNavigate?: (page: string) => void;
 }
 
 const ITEMS_PER_PAGE = 9;
@@ -23,13 +25,16 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
   onSearchChange,
   onCitySelect,
   onAddListing,
-  initialQuery
+  initialQuery,
+  currentUser,
+  onNavigate
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxPrice, setMaxPrice] = useState(3000);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   const [newTitle, setNewTitle] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newCity, setNewCity] = useState('');
@@ -39,7 +44,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
   const [newHasWifi, setNewHasWifi] = useState(false);
   const [newOwnerName, setNewOwnerName] = useState('');
 
-  // 👈 المفضلة: كنخزنوها فـ localStorage باش تبقى محفوظة حتى بعد ما يسد المستخدم الصفحة
+  // المفضلة
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem('irent_favorites');
@@ -55,29 +60,23 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       if (next.has(id)) next.delete(id); else next.add(id);
       try {
         localStorage.setItem('irent_favorites', JSON.stringify(Array.from(next)));
-      } catch {
-        // localStorage قد يكون غير متاح (وضع تصفح خاص مثلاً)؛ نتجاهلو الخطأ بلا ما نكسرو الواجهة
-      }
+      } catch {}
       return next;
     });
   };
   
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>('');
 
-  // 👈 كنجيبو البحث اللي دار المستخدم فـ HomePage (إلا كاين) ونحطوه هنا تلقائياً
   useEffect(() => {
     if (initialQuery && initialQuery.trim() !== '') {
       setSearchQuery(initialQuery);
       if (onSearchChange) onSearchChange(initialQuery);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
 
-  // كل ما تبدلات معايير البحث، نرجعو لصفحة 1
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, maxPrice]);
@@ -111,7 +110,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       noResults: 'لم يتم العثور على عقارات.',
       prevPage: '‹ السابق',
       nextPage: 'التالي ›',
-      pageOf: 'صفحة {current} من {total}'
+      pageOf: 'صفحة {current} من {total}',
     },
     fr: {
       popularCities: 'Villes populaires:',
@@ -141,7 +140,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       noResults: 'Aucune location trouvée.',
       prevPage: '‹ Précédent',
       nextPage: 'Suivant ›',
-      pageOf: 'Page {current} sur {total}'
+      pageOf: 'Page {current} sur {total}',
     },
     en: {
       popularCities: 'Popular Cities:',
@@ -171,11 +170,24 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       noResults: 'No listings found.',
       prevPage: '‹ Previous',
       nextPage: 'Next ›',
-      pageOf: 'Page {current} of {total}'
+      pageOf: 'Page {current} of {total}',
     }
   };
 
   const currentT = pageTexts[lang] || pageTexts.en;
+
+  // 🛡️ التحقق من تسجيل الدخول قبل فتح نافذة الإضافة
+  const handleOpenAddModalCheck = () => {
+    if (!currentUser) {
+      if (onNavigate) {
+        onNavigate('signup'); // توجيه المستخدم لصفحة التسجيل إذا لم يكن مسجلاً
+      }
+      return;
+    }
+
+    setFormError('');
+    setIsAddModalOpen(true);
+  };
 
   const handleSearchInput = (value: string) => {
     setSearchQuery(value);
@@ -221,7 +233,6 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
     return searchableText.includes(query) && item.price <= maxPrice;
   });
 
-  // Pagination: كنقسمو النتائج لصفحات باش ما تتقلش المتصفح كيتحمل كلشي دفعة وحدة
   const totalPages = Math.max(1, Math.ceil(filteredListings.length / ITEMS_PER_PAGE));
   const paginatedListings = filteredListings.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -238,7 +249,6 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
   };
 
   const handlePublish = async () => {
-    // 1. التحقق من البيانات قبل أي شيء (Form Validation)
     const missingFields = validatePublishForm();
     if (missingFields.length > 0) {
       setFormError(`${currentT.validationTitle} ${missingFields.join('، ')}`);
@@ -246,10 +256,6 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
     }
     setFormError('');
 
-    // 2. إنشاء كائن العقار الجديد لكي يظهر فوراً في الـ Cards والخريطة
-    //    ⚠️ هاد الحقول (imageUrl, ownerName, bedrooms, hasWifi) هي بالضبط اللي كيقراهم HouseCard.tsx —
-    //    قبل، كان كاين خطأ حقيقي هنا: كنا كنبعثو "image" بدل "imageUrl"، وما كناش كنبعثو ownerName/bedrooms/hasWifi خالص،
-    //    فكانت الصورة ما كتبانش (broken image) وكانت هاد الحقول كتبان "undefined" فكل عقار جديد.
     const newListingItem: Listing = {
       id: Date.now().toString(),
       title: {
@@ -265,22 +271,11 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       imageUrl: imagePreviews.length > 0 ? imagePreviews[0] : 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2',
       images: imagePreviews,
       video: videoPreview || undefined,
-      ownerName: newOwnerName.trim() || (lang === 'ar' ? 'مستخدم iRent.ma' : lang === 'fr' ? 'Utilisateur iRent.ma' : 'iRent.ma user'),
+      ownerName: newOwnerName.trim() || currentUser?.fullName || (lang === 'ar' ? 'مستخدم iRent.ma' : 'iRent.ma user'),
       bedrooms: Number(newBedrooms) || 1,
       hasWifi: newHasWifi,
     };
 
-    // 3. تجهيز الـ FormData للباك إند (في حال أردت ربطه لاحقاً)
-    const formData = new FormData();
-    formData.append('title', newTitle);
-    formData.append('price', newPrice);
-    formData.append('city', newCity);
-    selectedImages.forEach((file) => formData.append('images', file));
-    if (selectedVideo) formData.append('video', selectedVideo);
-    console.log("FormData prepared for backend:", formData);
-
-    // 4. إرسال العقار للمكون الأب (App.tsx كيدير النداء الفعلي لـ apiService.createListing وهو async)
-    //    كنستنّاو (await) الرد الحقيقي باش الـ spinner يعكس الحالة الحقيقية للنشر، ماشي مجرد تأخير وهمي.
     setIsPublishing(true);
     try {
       if (onAddListing) {
@@ -288,7 +283,6 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
       }
       alert(currentT.successAlert);
 
-      // 5. إغلاق النافذة وتفريغ الحقول (غير إلا نجح النشر)
       setIsAddModalOpen(false);
       setNewTitle('');
       setNewPrice('');
@@ -341,7 +335,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
         </div>
 
         <button
-          onClick={() => { setFormError(''); setIsAddModalOpen(true); }}
+          onClick={handleOpenAddModalCheck}
           className="bg-[#F4845F] hover:bg-[#e07553] text-white text-xs font-black px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 shrink-0 cursor-pointer"
         >
           <span>➕</span> {currentT.addListingBtn}
@@ -429,7 +423,7 @@ export const ListingsPage: React.FC<ListingsPageProps> = ({
         </div>
       )}
 
-      {/* نافذة الإضافة (Modal) */}
+      {/* نافذة الإضافة (Add Listing Modal) */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">

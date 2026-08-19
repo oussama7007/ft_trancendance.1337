@@ -43,13 +43,13 @@ function App() {
   const handleLogin = async (credentials: any) => {
     const user = await apiService.login(credentials);
     setCurrentUser(user);
-    setActivePage('home');
+    setActivePage('listings');
   };
 
   const handleRegister = async (userData: any) => {
     const user = await apiService.register(userData);
     setCurrentUser(user);
-    setActivePage('home');
+    setActivePage('listings');
   };
 
   const handleLogout = async () => {
@@ -109,6 +109,8 @@ function App() {
             onSelectListing={() => setActivePage('chat')} 
             t={t} 
             onAddListing={handleAddNewListing} 
+            currentUser={currentUser}       // 👈 تمرير المستخدم الحالي
+            onNavigate={setActivePage}      // 👈 تمرير دالة التنقل بين الصفحات
           />
         )}
         {activePage === 'chat' && (

@@ -25,7 +25,7 @@ const CITIES = [
 ];
 
 export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listings, onSelectListing, isLoggedIn, onSearch }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roommate' | 'list'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roommate' | 'list'>('home');//state
   
   const [searchQuery, setSearchQuery] = useState('');
   const [propertyType, setPropertyType] = useState('apartment');
