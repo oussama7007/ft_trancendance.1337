@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Language } from '../types';
+import { Language, User } from '../types';
 import { translations } from '../translations'; // 👈 استيراد الترجمة المركزية
 
 interface NavbarProps {
@@ -7,9 +7,18 @@ interface NavbarProps {
   setActivePage: (page: string) => void;
   lang: Language;
   setLang: (lang: Language) => void;
+  currentUser: User | null;
+  handleLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activePage = 'home', setActivePage, lang, setLang }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activePage = 'home',
+  setActivePage,
+  lang,
+  setLang,
+  currentUser,
+  handleLogout
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -140,16 +149,112 @@ export const Navbar: React.FC<NavbarProps> = ({ activePage = 'home', setActivePa
         </div>
 
         {/* زر Sign In / دخول */}
-        <button
-          onClick={() => setActivePage('signin')}
-          className="px-5 py-2.5 text-xs font-black bg-gray-900 text-white rounded-2xl shadow-lg 
-                     transition-all duration-300 ease-out 
-                     hover:scale-105 hover:bg-black hover:shadow-xl 
-                     active:scale-95 cursor-pointer"
-        >
-          {t.signIn}
-        </button>
+        {/* زر Sign In / Logout */}
 
+      {/* ================= AUTH ================= */}
+
+{currentUser ? (
+  <div className="flex items-center gap-3">
+
+    {/* User info */}
+    <div
+      className="
+        flex
+        items-center
+        gap-2.5
+        px-3
+        py-2
+        rounded-2xl
+        bg-white
+        border
+        border-gray-100
+        shadow-sm
+      "
+    >
+      {/* Avatar */}
+      <div
+        className="
+          w-8
+          h-8
+          rounded-xl
+          bg-gradient-to-br
+          from-[#F4845F]
+          to-[#e0633c]
+          flex
+          items-center
+          justify-center
+          text-white
+          text-xs
+          font-black
+          shadow-sm
+        "
+      >
+        {currentUser.fullName
+          ? currentUser.fullName.charAt(0).toUpperCase()
+          : 'U'}
+      </div>
+
+      {/* Name */}
+      <div className="hidden sm:flex flex-col leading-tight">
+        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+          Account
+        </span>
+
+        <span className="text-xs font-black text-gray-800 max-w-[120px] truncate">
+          {currentUser.fullName}
+        </span>
+      </div>
+    </div>
+
+    {/* Logout */}
+    <button
+      onClick={handleLogout}
+      className="
+        px-5
+        py-2.5
+        text-xs
+        font-black
+        bg-gray-900
+        text-white
+        rounded-2xl
+        shadow-lg
+        transition-all
+        duration-300
+        hover:scale-105
+        hover:bg-black
+        hover:shadow-xl
+        active:scale-95
+        cursor-pointer
+      "
+    >
+      Logout
+    </button>
+
+  </div>
+) : (
+  <button
+    onClick={() => setActivePage('signin')}
+    className="
+      px-5
+      py-2.5
+      text-xs
+      font-black
+      bg-gray-900
+      text-white
+      rounded-2xl
+      shadow-lg
+      transition-all
+      duration-300
+      hover:scale-105
+      hover:bg-black
+      hover:shadow-xl
+      active:scale-95
+      cursor-pointer
+    "
+  >
+    {t.signIn}
+  </button>
+)}
       </div>
     </nav>
   );

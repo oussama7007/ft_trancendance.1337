@@ -84,17 +84,27 @@ export const apiService = {
     return listingToAdd;
   },
 
-  login: async (credentials: any): Promise<User> => {
-    await delay(600);
-    loggedInUser = {
-      id: 101,
-      fullName: 'Soufiane El Idrissi',
-      email: credentials.email,
-      profilePic: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'
-    };
-    localStorage.setItem('irent_token', 'mock_jwt_token_123');
-    return loggedInUser;
-  },
+login: async (credentials: {
+  email: string;
+  password: string;
+}): Promise<User> => {
+  await delay(600);
+
+  const nameFromEmail = credentials.email
+    .split('@')[0]
+    .replace(/[._-]/g, ' ');
+
+  loggedInUser = {
+    id: 101,
+    fullName: nameFromEmail,
+    email: credentials.email,
+    profilePic: ''
+  };
+
+  localStorage.setItem('irent_token', 'mock_jwt_token_123');
+
+  return loggedInUser;
+},
 
   register: async (userData: any): Promise<User> => {
     await delay(800);
