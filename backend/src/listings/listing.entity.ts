@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ListingTranslation } from './listing-translation.entity';
 
 @Entity('listings')
 export class Listing {
@@ -28,4 +34,23 @@ export class Listing {
 
   @Column()
   districtEnFr: string;
+
+  @Column({ nullable: true })
+  ownerName: string;
+
+  @Column({ nullable: true })
+  ownerId: number;
+
+  @Column('double precision', { nullable: true })
+  lat: number;
+
+  @Column('double precision', { nullable: true })
+  lng: number;
+
+  @OneToMany(
+    () => ListingTranslation,
+    (translation) => translation.listing,
+    { cascade: true },
+  )
+  translations: ListingTranslation[];
 }
