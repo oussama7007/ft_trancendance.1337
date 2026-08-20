@@ -42,12 +42,18 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
   const [activeDetailItem, setActiveDetailItem] = useState<any>(null);
 
+  // const [cameraProps, setCameraProps] = useState({
+  //   center: { lat: 32.8817, lng: -6.9063 },
+  //   zoom: 17,
+  //   tilt: 75,
+  //   heading: 30
+  // });
   const [cameraProps, setCameraProps] = useState({
-    center: { lat: 32.8817, lng: -6.9063 },
-    zoom: 17,
-    tilt: 75,
-    heading: 30
-  });
+  center: { lat: 31.7917, lng: -7.0926 },
+  zoom: 5.5,
+  tilt: 0,
+  heading: 0
+});
 
   // عقارات تجريبية (Demo) كنعرضوها دائماً كـ "بذرة" محتوى، حتى قبل ما يكون عندنا عقارات حقيقية
   const demoMarkers = [
@@ -276,13 +282,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setActivePage, lang, listing
 
           setCameraProps({
             center: { lat: userLat, lng: userLng },
-            zoom: 17,
+            zoom: 14,
             tilt: 75,
             heading: 30
           });
         },
         (error) => {
-          setSearchQuery('Khouribga');
+          setSearchQuery('');
         },
         { enableHighAccuracy: true }
       );
