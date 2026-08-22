@@ -16,7 +16,7 @@ import { ListingsModule } from './listings/listings.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: 'localhost',
+        host: 'database',
         port: 5432,
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
