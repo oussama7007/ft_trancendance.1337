@@ -41,11 +41,11 @@ export class Listing {
   @Column({ nullable: true })
   ownerId: number;
 
-  @Column('double precision', { nullable: true })
-  lat: number;
+@Column('double precision', { nullable: true })
+lat: number | null;
 
-  @Column('double precision', { nullable: true })
-  lng: number;
+@Column('double precision', { nullable: true })
+lng: number | null;
 
   @OneToMany(
     () => ListingTranslation,

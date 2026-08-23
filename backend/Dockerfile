@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts && npm run start:dev -- --host 0.0.0.0"]
+CMD ["sh", "-c", "npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts && npm run seed && npm run start:dev -- --host 0.0.0.0"]
