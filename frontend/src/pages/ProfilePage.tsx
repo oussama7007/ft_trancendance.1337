@@ -1,12 +1,22 @@
-import React, { useMemo, useState } from 'react';
-import { Listing, Language, User } from '../types';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+
+import {
+  Listing,
+  Language,
+  User,
+} from '../types';
+
 import { AddModal } from '../components/AddModal';
 
 interface ProfilePageProps {
   lang: Language;
   listings: Listing[];
   onBackToHome?: () => void;
-  onAddListing: (newListing: any) => void;
+  onAddListing: (newListing: Listing) => void;
   t: any;
   currentUser: User | null;
 }
@@ -17,8 +27,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onBackToHome,
   onAddListing,
   t,
-  currentUser
+  currentUser,
 }) => {
+  /*
+   * =========================================================
+   * STATE
+   * =========================================================
+   */
+
   const [activeTab, setActiveTab] = useState<
     'overview' | 'listings' | 'stats' | 'settings'
   >('overview');
@@ -27,18 +43,36 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const [isSaved, setIsSaved] = useState(false);
 
   /*
-   * ---------------------------------------------------------
-   * USER DATA
-   * ---------------------------------------------------------
+   * =========================================================
+   * LANGUAGE
+   * =========================================================
    */
 
-  const fullName = currentUser?.fullName || 'User';
+  const isArabic = lang === 'ar';
+  const isFrench = lang === 'fr';
 
-  const nameParts = fullName.trim().split(' ');
+  /*
+   * =========================================================
+   * USER DATA
+   * =========================================================
+   *
+   * Everything here comes from currentUser.
+   *
+   * currentUser should contain data coming from:
+   *
+   * Signup -> Backend -> Login -> currentUser -> Profile
+   *
+   * =========================================================
+   */
+
+  const fullName =
+    currentUser?.fullName?.trim() || 'User';
+
+  const nameParts = fullName.split(/\s+/);
 
   const firstName =
     nameParts[0] ||
-    (lang === 'ar' ? 'المستخدم' : 'User');
+    (isArabic ? 'المستخدم' : 'User');
 
   const lastName =
     nameParts.slice(1).join(' ') || '';
@@ -46,76 +80,139 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const email =
     currentUser?.email || '';
 
+  const phone =
+    currentUser?.phone || '';
+
+  const bio =
+    currentUser?.bio || '';
+
   const profilePic =
     currentUser?.profilePic || '';
 
   /*
-   * ---------------------------------------------------------
-   * USER LISTINGS
-   * ---------------------------------------------------------
-   *
-   * مهم:
-   * ما بقيناش نعرضو جميع listings.
-   * غير listings اللي ownerId ديالها هو currentUser.id
-   */
-
-  const myListings = useMemo(() => {
-    if (!currentUser) return [];
-
-    return listings.filter(
-      listing => listing.ownerId === currentUser.id
-    );
-  }, [listings, currentUser]);
-
-  /*
-   * ---------------------------------------------------------
-   * SETTINGS
-   * ---------------------------------------------------------
+   * =========================================================
+   * SETTINGS DATA
+   * =========================================================
    */
 
   const [settingsData, setSettingsData] = useState({
     firstName,
     lastName,
     email,
-    phone: '',
-    bio: '',
+    phone,
+    bio,
   });
 
   /*
-   * ---------------------------------------------------------
-   * SAVE SETTINGS
-   * ---------------------------------------------------------
+   * IMPORTANT:
+   * If currentUser changes after login/signup,
+   * update the profile settings automatically.
    */
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  useEffect(() => {
+    setSettingsData({
+      firstName,
+      lastName,
+      email,
+      phone,
+      bio,
+    });
+  }, [
+    firstName,
+    lastName,
+    email,
+    phone,
+    bio,
+  ]);
+
+  /*
+   * =========================================================
+   * USER LISTINGS
+   * =========================================================
+   *
+   * Only listings belonging to the logged-in user.
+   */
+
+  const myListings = useMemo(() => {
+    if (!currentUser?.id) {
+      return [];
+    }
+
+    return listings.filter(
+      (listing) =>
+        String(listing.ownerId) ===
+        String(currentUser.id)
+    );
+  }, [
+    listings,
+    currentUser,
+  ]);
+
+  /*
+   * =========================================================
+   * SAVE SETTINGS
+   * =========================================================
+   */
+
+  const handleSaveSettings = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
+
+    /*
+     * IMPORTANT:
+     *
+     * This currently changes the local UI only.
+     *
+     * Once backend is connected, you should send
+     * settingsData to your API here.
+     */
 
     setIsSaved(true);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       setIsSaved(false);
     }, 3000);
   };
 
   /*
-   * ---------------------------------------------------------
+   * =========================================================
    * ADD LISTING
-   * ---------------------------------------------------------
+   * =========================================================
    */
 
-  const handleAdd = (newListing: Listing) => {
-    onAddListing(newListing);
+  const handleAdd = (
+    newListing: Listing
+  ) => {
+    if (!currentUser) {
+      return;
+    }
+
+    /*
+     * Force ownerId to the currently logged-in user.
+     */
+
+    const listingWithOwner: Listing = {
+      ...newListing,
+      ownerId: currentUser.id,
+    };
+
+    onAddListing(listingWithOwner);
+
     setShowModal(false);
+
+    /*
+     * Open My Listings after creating listing.
+     */
+
+    setActiveTab('listings');
   };
 
   /*
-   * ---------------------------------------------------------
+   * =========================================================
    * TRANSLATIONS
-   * ---------------------------------------------------------
+   * =========================================================
    */
-
-  const isArabic = lang === 'ar';
-  const isFrench = lang === 'fr';
 
   const text = {
     overview: isArabic
@@ -154,7 +251,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       ? 'Actif'
       : 'Active',
 
-    addListing: t?.addListing ||
+    addListing:
+      t?.addListing ||
       (isArabic
         ? 'إضافة عقار'
         : isFrench
@@ -291,13 +389,61 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       ? 'ستظهر الإحصائيات الحقيقية بعد ربط الـ backend'
       : isFrench
       ? 'Les statistiques réelles apparaîtront après connexion au backend'
-      : 'Real analytics will appear once the backend is connected'
+      : 'Real analytics will appear once the backend is connected',
+
+    profileDescription: isArabic
+      ? 'حسابك جاهز لإدارة العقارات والتواصل مع المستخدمين.'
+      : isFrench
+      ? 'Votre compte est prêt pour gérer vos biens et communiquer avec les utilisateurs.'
+      : 'Your account is ready to manage listings and communicate with users.',
+
+    updateProfileDescription: isArabic
+      ? 'قم بتحديث المعلومات الظاهرة في ملفك الشخصي.'
+      : isFrench
+      ? 'Mettez à jour les informations de votre profil.'
+      : 'Update the information displayed on your profile.',
+
+    emailBackend: isArabic
+      ? 'يجب تغيير البريد الإلكتروني بشكل آمن من خلال الـ backend.'
+      : isFrench
+      ? 'La modification de l’e-mail doit être gérée par le backend.'
+      : 'Email changes should be handled securely by the backend.',
+
+    publishedProperties: isArabic
+      ? 'العقارات المنشورة'
+      : isFrench
+      ? 'Biens publiés'
+      : 'Published properties',
+
+    activeConversations: isArabic
+      ? 'المحادثات النشطة'
+      : isFrench
+      ? 'Conversations actives'
+      : 'Active conversations',
+
+    listingPerformance: isArabic
+      ? 'أداء العقارات'
+      : isFrench
+      ? 'Performance des biens'
+      : 'Listing performance',
+
+    last30Days: isArabic
+      ? 'آخر 30 يومًا'
+      : isFrench
+      ? '30 derniers jours'
+      : 'Last 30 days',
+
+    writeAboutYou: isArabic
+      ? 'اكتب نبذة قصيرة عنك...'
+      : isFrench
+      ? 'Écrivez une courte présentation...'
+      : 'Write a short description about yourself...',
   };
 
   /*
-   * ---------------------------------------------------------
+   * =========================================================
    * NOT LOGGED IN
-   * ---------------------------------------------------------
+   * =========================================================
    */
 
   if (!currentUser) {
@@ -308,6 +454,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         }`}
       >
         <div className="max-w-md w-full bg-white rounded-[2rem] p-10 text-center shadow-xl border border-gray-100">
+
           <div className="w-20 h-20 mx-auto rounded-3xl bg-orange-50 flex items-center justify-center text-4xl mb-6">
             👤
           </div>
@@ -317,37 +464,39 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           </h2>
 
           <button
+            type="button"
             onClick={onBackToHome}
             className="mt-6 px-6 py-3 rounded-2xl bg-gray-900 text-white font-bold text-sm hover:bg-[#F4845F] transition"
           >
             {text.back}
           </button>
+
         </div>
       </div>
     );
   }
 
   /*
-   * ---------------------------------------------------------
+   * =========================================================
    * MAIN PROFILE
-   * ---------------------------------------------------------
+   * =========================================================
    */
 
   return (
     <div
       className={`min-h-screen bg-[#f6f7f9] px-4 py-6 md:px-8 md:py-10 ${
-        isArabic ? 'rtl text-right' : 'ltr text-left'
+        isArabic
+          ? 'rtl text-right'
+          : 'ltr text-left'
       }`}
     >
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* =====================================================
+        {/* ===================================================
             PROFILE HERO
-        ====================================================== */}
+        =================================================== */}
 
         <section className="relative overflow-hidden rounded-[2.5rem] bg-gray-950 text-white shadow-2xl">
-
-          {/* Background effects */}
 
           <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-[#F4845F]/20 blur-3xl" />
 
@@ -359,11 +508,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
 
-              {/* User */}
+              {/* USER */}
 
               <div className="flex items-center gap-5">
-
-                {/* Avatar */}
 
                 <div className="relative shrink-0">
 
@@ -375,16 +522,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     />
                   ) : (
                     <div className="w-24 h-24 md:w-28 md:h-28 rounded-[2rem] bg-gradient-to-br from-[#F4845F] to-orange-500 flex items-center justify-center text-4xl font-black shadow-2xl">
-                      {firstName.charAt(0).toUpperCase()}
+                      {firstName
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
                   )}
 
-                  {/* Online */}
-
                   <span className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-500 border-4 border-gray-950" />
-                </div>
 
-                {/* Info */}
+                </div>
 
                 <div className="space-y-2">
 
@@ -404,6 +550,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     {email}
                   </p>
 
+                  {phone && (
+                    <p className="text-xs text-gray-500">
+                      📱 {phone}
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap gap-2 pt-1">
 
                     <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-gray-300">
@@ -417,20 +569,25 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   </div>
 
                 </div>
+
               </div>
 
-              {/* Actions */}
+              {/* ACTIONS */}
 
               <div className="flex flex-wrap gap-3">
 
                 <button
-                  onClick={() => setActiveTab('settings')}
+                  type="button"
+                  onClick={() =>
+                    setActiveTab('settings')
+                  }
                   className="px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition font-bold text-xs"
                 >
                   ✏️ {text.editProfile}
                 </button>
 
                 <button
+                  type="button"
                   onClick={onBackToHome}
                   className="px-5 py-3 rounded-2xl bg-[#F4845F] hover:bg-orange-500 transition shadow-lg shadow-orange-500/20 font-black text-xs"
                 >
@@ -440,16 +597,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               </div>
 
             </div>
+
           </div>
         </section>
 
-        {/* =====================================================
+        {/* ===================================================
             QUICK STATS
-        ====================================================== */}
+        =================================================== */}
 
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-          {/* Listings */}
 
           <div className="group bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all">
 
@@ -475,8 +631,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
           </div>
 
-          {/* Messages */}
-
           <div className="group bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all">
 
             <div className="flex items-center justify-between mb-5">
@@ -501,8 +655,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
           </div>
 
-          {/* Views */}
-
           <div className="group bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all">
 
             <div className="flex items-center justify-between mb-5">
@@ -526,8 +678,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </p>
 
           </div>
-
-          {/* Saved */}
 
           <div className="group bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all">
 
@@ -555,9 +705,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         </section>
 
-        {/* =====================================================
+        {/* ===================================================
             TABS
-        ====================================================== */}
+        =================================================== */}
 
         <div className="bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm flex flex-wrap">
 
@@ -565,26 +715,27 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             {
               id: 'overview',
               label: text.overview,
-              icon: '✨'
+              icon: '✨',
             },
             {
               id: 'listings',
               label: text.myListings,
-              icon: '🏠'
+              icon: '🏠',
             },
             {
               id: 'stats',
               label: text.stats,
-              icon: '📊'
+              icon: '📊',
             },
             {
               id: 'settings',
               label: text.settings,
-              icon: '⚙️'
-            }
-          ].map(tab => (
+              icon: '⚙️',
+            },
+          ].map((tab) => (
 
             <button
+              type="button"
               key={tab.id}
               onClick={() =>
                 setActiveTab(
@@ -608,15 +759,13 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         </div>
 
-        {/* =====================================================
+        {/* ===================================================
             OVERVIEW
-        ====================================================== */}
+        =================================================== */}
 
         {activeTab === 'overview' && (
 
           <section className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
-
-            {/* Recent listings */}
 
             <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6">
 
@@ -635,7 +784,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </div>
 
                 <button
-                  onClick={() => setShowModal(true)}
+                  type="button"
+                  onClick={() =>
+                    setShowModal(true)
+                  }
                   className="px-4 py-2.5 rounded-xl bg-[#F4845F] text-white text-xs font-black hover:bg-orange-500 transition"
                 >
                   + {text.addListing}
@@ -656,7 +808,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   </h3>
 
                   <button
-                    onClick={() => setShowModal(true)}
+                    type="button"
+                    onClick={() =>
+                      setShowModal(true)
+                    }
                     className="mt-5 px-5 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black hover:bg-[#F4845F] transition"
                   >
                     {text.addFirst}
@@ -668,46 +823,52 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
                 <div className="space-y-3">
 
-                  {myListings.slice(0, 4).map(listing => (
+                  {myListings
+                    .slice(0, 4)
+                    .map((listing) => (
 
-                    <div
-                      key={listing.id}
-                      className="group flex items-center gap-4 p-3 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/30 transition"
-                    >
+                      <div
+                        key={listing.id}
+                        className="group flex items-center gap-4 p-3 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/30 transition"
+                      >
 
-                      <img
-                        src={listing.imageUrl}
-                        alt={listing.title[lang] || listing.title.en}
-                        className="w-20 h-16 object-cover rounded-xl"
-                      />
+                        <img
+                          src={listing.imageUrl}
+                          alt={
+                            listing.title[lang] ||
+                            listing.title.en
+                          }
+                          className="w-20 h-16 object-cover rounded-xl"
+                        />
 
-                      <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0">
 
-                        <h3 className="font-black text-sm text-gray-900 truncate group-hover:text-[#F4845F] transition">
-                          {listing.title[lang] || listing.title.en}
-                        </h3>
+                          <h3 className="font-black text-sm text-gray-900 truncate group-hover:text-[#F4845F] transition">
+                            {listing.title[lang] ||
+                              listing.title.en}
+                          </h3>
 
-                        <p className="text-xs text-gray-400 mt-1">
-                          📍 {listing.city}
-                        </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            📍 {listing.city}
+                          </p>
+
+                        </div>
+
+                        <div className="text-right">
+
+                          <p className="text-sm font-black text-[#F4845F]">
+                            {listing.price} DH
+                          </p>
+
+                          <span className="inline-block mt-1 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                            {text.active}
+                          </span>
+
+                        </div>
 
                       </div>
 
-                      <div className="text-right">
-
-                        <p className="text-sm font-black text-[#F4845F]">
-                          {listing.price} DH
-                        </p>
-
-                        <span className="inline-block mt-1 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                          {text.active}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  ))}
+                    ))}
 
                 </div>
 
@@ -715,7 +876,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
             </div>
 
-            {/* Account card */}
+            {/* ACCOUNT CARD */}
 
             <div className="bg-gray-950 rounded-[2rem] p-6 text-white relative overflow-hidden">
 
@@ -732,16 +893,13 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </h2>
 
                 <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-                  {isArabic
-                    ? 'حسابك جاهز لإدارة العقارات والتواصل مع المستخدمين.'
-                    : isFrench
-                    ? 'Votre compte est prêt pour gérer vos biens et communiquer avec les utilisateurs.'
-                    : 'Your account is ready to manage listings and communicate with users.'}
+                  {text.profileDescription}
                 </p>
 
                 <div className="mt-8 space-y-3">
 
                   <div className="flex justify-between text-xs">
+
                     <span className="text-gray-500">
                       Profile
                     </span>
@@ -749,6 +907,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     <span className="font-black">
                       80%
                     </span>
+
                   </div>
 
                   <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -760,7 +919,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </div>
 
                 <button
-                  onClick={() => setActiveTab('settings')}
+                  type="button"
+                  onClick={() =>
+                    setActiveTab('settings')
+                  }
                   className="mt-8 w-full py-3.5 rounded-2xl bg-white text-gray-950 text-xs font-black hover:bg-[#F4845F] hover:text-white transition"
                 >
                   {text.editProfile}
@@ -774,9 +936,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         )}
 
-        {/* =====================================================
+        {/* ===================================================
             MY LISTINGS
-        ====================================================== */}
+        =================================================== */}
 
         {activeTab === 'listings' && (
 
@@ -797,7 +959,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               </div>
 
               <button
-                onClick={() => setShowModal(true)}
+                type="button"
+                onClick={() =>
+                  setShowModal(true)
+                }
                 className="px-5 py-3 rounded-2xl bg-[#F4845F] text-white font-black text-xs shadow-lg shadow-orange-500/20 hover:bg-orange-500 transition"
               >
                 + {text.addListing}
@@ -822,7 +987,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </p>
 
                 <button
-                  onClick={() => setShowModal(true)}
+                  type="button"
+                  onClick={() =>
+                    setShowModal(true)
+                  }
                   className="mt-6 px-6 py-3 rounded-2xl bg-gray-950 text-white text-xs font-black hover:bg-[#F4845F] transition"
                 >
                   {text.addFirst}
@@ -834,7 +1002,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
 
-                {myListings.map(listing => (
+                {myListings.map((listing) => (
 
                   <div
                     key={listing.id}
@@ -845,7 +1013,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
                       <img
                         src={listing.imageUrl}
-                        alt={listing.title[lang] || listing.title.en}
+                        alt={
+                          listing.title[lang] ||
+                          listing.title.en
+                        }
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                       />
 
@@ -870,7 +1041,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     <div className="p-5">
 
                       <h3 className="font-black text-gray-900 text-sm truncate">
-                        {listing.title[lang] || listing.title.en}
+                        {listing.title[lang] ||
+                          listing.title.en}
                       </h3>
 
                       <p className="text-xs text-gray-400 mt-2">
@@ -884,7 +1056,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                         </span>
 
                         <span className="text-[10px] text-gray-500 font-bold">
-                          📶 {listing.hasWifi ? 'WiFi' : 'No WiFi'}
+                          📶{' '}
+                          {listing.hasWifi
+                            ? 'WiFi'
+                            : 'No WiFi'}
                         </span>
 
                       </div>
@@ -903,9 +1078,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         )}
 
-        {/* =====================================================
+        {/* ===================================================
             STATS
-        ====================================================== */}
+        =================================================== */}
 
         {activeTab === 'stats' && (
 
@@ -960,7 +1135,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </p>
 
                 <p className="text-[10px] text-blue-500 font-black mt-2">
-                  Active conversations
+                  {text.activeConversations}
                 </p>
 
               </div>
@@ -980,14 +1155,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </p>
 
                 <p className="text-[10px] text-[#F4845F] font-black mt-2">
-                  Published properties
+                  {text.publishedProperties}
                 </p>
 
               </div>
 
             </div>
-
-            {/* Fake chart placeholder until backend */}
 
             <div className="bg-white rounded-[2rem] border border-gray-100 p-7">
 
@@ -996,11 +1169,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 <div>
 
                   <h3 className="font-black text-gray-900">
-                    Listing performance
+                    {text.listingPerformance}
                   </h3>
 
                   <p className="text-xs text-gray-400 mt-1">
-                    Last 30 days
+                    {text.last30Days}
                   </p>
 
                 </div>
@@ -1019,7 +1192,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                     <div
                       key={index}
                       className="flex-1 bg-gradient-to-t from-[#F4845F] to-orange-300 rounded-t-xl opacity-80 hover:opacity-100 transition"
-                      style={{ height: `${height}%` }}
+                      style={{
+                        height: `${height}%`,
+                      }}
                     />
 
                   )
@@ -1033,9 +1208,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         )}
 
-        {/* =====================================================
+        {/* ===================================================
             SETTINGS
-        ====================================================== */}
+        =================================================== */}
 
         {activeTab === 'settings' && (
 
@@ -1053,11 +1228,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 </h2>
 
                 <p className="text-xs text-gray-400 mt-2">
-                  {isArabic
-                    ? 'قم بتحديث المعلومات الظاهرة في ملفك الشخصي.'
-                    : isFrench
-                    ? 'Mettez à jour les informations de votre profil.'
-                    : 'Update the information displayed on your profile.'}
+                  {text.updateProfileDescription}
                 </p>
 
               </div>
@@ -1071,7 +1242,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
               )}
 
-              {/* First + Last */}
+              {/* FIRST NAME + LAST NAME */}
 
               <div className="grid md:grid-cols-2 gap-5">
 
@@ -1084,11 +1255,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   <input
                     type="text"
                     value={settingsData.firstName}
-                    onChange={e =>
-                      setSettingsData({
-                        ...settingsData,
-                        firstName: e.target.value
-                      })
+                    onChange={(e) =>
+                      setSettingsData((prev) => ({
+                        ...prev,
+                        firstName:
+                          e.target.value,
+                      }))
                     }
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#F4845F] transition"
                   />
@@ -1104,11 +1276,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   <input
                     type="text"
                     value={settingsData.lastName}
-                    onChange={e =>
-                      setSettingsData({
-                        ...settingsData,
-                        lastName: e.target.value
-                      })
+                    onChange={(e) =>
+                      setSettingsData((prev) => ({
+                        ...prev,
+                        lastName:
+                          e.target.value,
+                      }))
                     }
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#F4845F] transition"
                   />
@@ -1117,7 +1290,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
               </div>
 
-              {/* Email */}
+              {/* EMAIL */}
 
               <div>
 
@@ -1133,12 +1306,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 />
 
                 <p className="text-[10px] text-gray-400 mt-2">
-                  Email changes should be handled securely by the backend.
+                  {text.emailBackend}
                 </p>
 
               </div>
 
-              {/* Phone */}
+              {/* PHONE */}
 
               <div>
 
@@ -1150,18 +1323,19 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   type="tel"
                   placeholder="+212 6 XX XX XX XX"
                   value={settingsData.phone}
-                  onChange={e =>
-                    setSettingsData({
-                      ...settingsData,
-                      phone: e.target.value
-                    })
+                  onChange={(e) =>
+                    setSettingsData((prev) => ({
+                      ...prev,
+                      phone:
+                        e.target.value,
+                    }))
                   }
                   className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#F4845F] transition"
                 />
 
               </div>
 
-              {/* Bio */}
+              {/* BIO */}
 
               <div>
 
@@ -1172,25 +1346,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 <textarea
                   rows={4}
                   value={settingsData.bio}
-                  onChange={e =>
-                    setSettingsData({
-                      ...settingsData,
-                      bio: e.target.value
-                    })
+                  onChange={(e) =>
+                    setSettingsData((prev) => ({
+                      ...prev,
+                      bio:
+                        e.target.value,
+                    }))
                   }
-                  placeholder={
-                    isArabic
-                      ? 'اكتب نبذة قصيرة عنك...'
-                      : isFrench
-                      ? 'Écrivez une courte présentation...'
-                      : 'Write a short description about yourself...'
-                  }
+                  placeholder={text.writeAboutYou}
                   className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#F4845F] transition resize-none"
                 />
 
               </div>
 
-              {/* Save */}
+              {/* SAVE */}
 
               <button
                 type="submit"
@@ -1205,14 +1374,16 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
         )}
 
-        {/* =====================================================
+        {/* ===================================================
             ADD MODAL
-        ====================================================== */}
+        =================================================== */}
 
         {showModal && (
 
           <AddModal
-            onClose={() => setShowModal(false)}
+            onClose={() =>
+              setShowModal(false)
+            }
             onAdd={handleAdd}
             lang={lang}
           />

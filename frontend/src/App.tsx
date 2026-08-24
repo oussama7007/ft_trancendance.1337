@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -8,6 +8,8 @@ import { ListingsPage } from './pages/ListingsPage';
 import { DetailsPage } from './pages/DetailsPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SignInPage } from './pages/SignInPage';
+import { SignUpPage } from './pages/SignUpPage';
 
 import {
   Listing,
@@ -20,13 +22,14 @@ import { apiService } from './services/apiService';
 import { translations } from './translations';
 
 function App() {
-
-  // =====================================================
-  // APP STATE
-  // =====================================================
+  /*
+   * =========================================================
+   * APP STATE
+   * =========================================================
+   */
 
   const [activePage, setActivePage] =
-    useState('home');
+    useState<string>('home');
 
   const [lang, setLang] =
     useState<Language>('en');
@@ -34,76 +37,102 @@ function App() {
   const [activeChatId, setActiveChatId] =
     useState<number>(1);
 
-
-  // =====================================================
-  // SELECTED LISTING
-  // العقار اللي اختار المستخدم
-  // =====================================================
+  /*
+   * =========================================================
+   * SELECTED LISTING
+   * =========================================================
+   */
 
   const [selectedListing, setSelectedListing] =
     useState<Listing | null>(null);
 
-
-  // =====================================================
-  // AUTH
-  // =====================================================
+  /*
+   * =========================================================
+   * AUTH
+   * =========================================================
+   */
 
   const [currentUser, setCurrentUser] =
     useState<User | null>(null);
 
   const [isLoading, setIsLoading] =
-    useState(true);
+    useState<boolean>(true);
 
-
-  // =====================================================
-  // DATA
-  // =====================================================
+  /*
+   * =========================================================
+   * DATA
+   * =========================================================
+   */
 
   const [listings, setListings] =
     useState<Listing[]>([]);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] =
+    useState<string>('');
 
   const [chats, setChats] =
     useState<ChatConversation[]>([]);
 
-
-  // =====================================================
-  // LOGIN
-  // =====================================================
+  /*
+   * =========================================================
+   * LOGIN FORM
+   * =========================================================
+   */
 
   const [loginEmail, setLoginEmail] =
-    useState('');
+    useState<string>('');
 
   const [loginPassword, setLoginPassword] =
-    useState('');
+    useState<string>('');
 
+  /*
+   * =========================================================
+   * REGISTER FORM
+   * =========================================================
+   */
 
-  // =====================================================
-  // REGISTER
-  // =====================================================
+  const [registerFirstName, setRegisterFirstName] =
+    useState<string>('');
 
-  const [registerFullName, setRegisterFullName] =
-    useState('');
+  const [registerLastName, setRegisterLastName] =
+    useState<string>('');
+
+  const [registerDob, setRegisterDob] =
+    useState<string>('');
 
   const [registerEmail, setRegisterEmail] =
-    useState('');
+    useState<string>('');
+
+  const [registerPhone, setRegisterPhone] =
+    useState<string>('');
+
+  const [registerCin, setRegisterCin] =
+    useState<string>('');
+
+  const [registerInstagram, setRegisterInstagram] =
+    useState<string>('');
+
+  const [registerFacebook, setRegisterFacebook] =
+    useState<string>('');
+
+  const [registerLinkedin, setRegisterLinkedin] =
+    useState<string>('');
 
   const [registerPassword, setRegisterPassword] =
-    useState('');
+    useState<string>('');
 
-
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
+  /*
+   * =========================================================
+   * INITIAL LOAD
+   * =========================================================
+   */
 
   useEffect(() => {
-
     const initApp = async () => {
-
       try {
-
-        // Current user
+        /*
+         * CURRENT USER
+         */
 
         const user =
           await apiService.getCurrentUser();
@@ -112,45 +141,63 @@ function App() {
           setCurrentUser(user);
         }
 
-
-        // Listings
+        /*
+         * LISTINGS
+         */
 
         const fetchedListings =
           await apiService.getListings();
 
-        setListings(fetchedListings);
+        setListings(
+          Array.isArray(fetchedListings)
+            ? fetchedListings
+            : []
+        );
 
+        /*
+         * CHATS
+         *
+         * If your backend requires authentication,
+         * getChats() can return [] when not logged in.
+         */
 
-        // Chats
+        try {
+          const fetchedChats =
+            await apiService.getChats();
 
-        const fetchedChats =
-          await apiService.getChats();
+          setChats(
+            Array.isArray(fetchedChats)
+              ? fetchedChats
+              : []
+          );
+        } catch (chatError) {
+          console.warn(
+            'Could not load chats:',
+            chatError
+          );
 
-        setChats(fetchedChats);
+          setChats([]);
+        }
 
       } catch (error) {
-
         console.error(
           'Error loading app data:',
           error
         );
 
       } finally {
-
         setIsLoading(false);
-
       }
-
     };
 
     initApp();
-
   }, []);
 
-
-  // =====================================================
-  // LOGIN
-  // =====================================================
+  /*
+   * =========================================================
+   * LOGIN
+   * =========================================================
+   */
 
   const handleLogin = async (
     credentials: {
@@ -158,138 +205,200 @@ function App() {
       password: string;
     }
   ) => {
-
     try {
-
       const user =
         await apiService.login(credentials);
 
+      /*
+       * Save logged-in user in React state.
+       */
+
       setCurrentUser(user);
+
+      /*
+       * Clear login fields.
+       */
 
       setLoginEmail('');
       setLoginPassword('');
 
+      /*
+       * Go to listings after login.
+       */
+
       setActivePage('listings');
 
     } catch (error) {
-
       console.error(
         'Login error:',
         error
       );
 
+      /*
+       * Later you can show an error message
+       * inside SignInPage.
+       */
     }
-
   };
 
-
-  // =====================================================
-  // REGISTER
-  // =====================================================
+  /*
+   * =========================================================
+   * REGISTER
+   * =========================================================
+   */
 
   const handleRegister = async (
-    userData: {
-      fullName: string;
-      email: string;
-      password: string;
-    }
+    userData: any
   ) => {
-
     try {
-
       const user =
         await apiService.register(userData);
 
+      /*
+       * Save registered user as current user.
+       */
+
       setCurrentUser(user);
 
-      setRegisterFullName('');
+      /*
+       * Clear registration fields.
+       */
+
+      setRegisterFirstName('');
+      setRegisterLastName('');
+      setRegisterDob('');
       setRegisterEmail('');
+      setRegisterPhone('');
+      setRegisterCin('');
+      setRegisterInstagram('');
+      setRegisterFacebook('');
+      setRegisterLinkedin('');
       setRegisterPassword('');
+
+      /*
+       * Go to listings.
+       */
 
       setActivePage('listings');
 
     } catch (error) {
-
       console.error(
         'Register error:',
         error
       );
-
     }
-
   };
 
-
-  // =====================================================
-  // LOGOUT
-  // =====================================================
+  /*
+   * =========================================================
+   * LOGOUT
+   * =========================================================
+   */
 
   const handleLogout = async () => {
-
     try {
-
       await apiService.logout();
+
+      /*
+       * Remove authenticated user.
+       */
 
       setCurrentUser(null);
 
+      /*
+       * Clear selected listing.
+       */
+
       setSelectedListing(null);
+
+      /*
+       * Clear search.
+       */
+
+      setSearchQuery('');
+
+      /*
+       * Go home.
+       */
 
       setActivePage('home');
 
     } catch (error) {
-
       console.error(
         'Logout error:',
         error
       );
-
     }
-
   };
 
-
-  // =====================================================
-  // ADD LISTING
-  // =====================================================
+  /*
+   * =========================================================
+   * ADD NEW LISTING
+   * =========================================================
+   */
 
   const handleAddNewListing = async (
     newListingData: Listing
   ) => {
-
     try {
+      /*
+       * Security / ownership:
+       *
+       * The backend should determine the owner
+       * from the authenticated session.
+       *
+       * ownerId here is useful for frontend state,
+       * but backend must NOT trust a client-provided ownerId.
+       */
+
+      const listingToCreate: Listing = {
+        ...newListingData,
+
+        ...(currentUser
+          ? {
+              ownerId: currentUser.id,
+            }
+          : {}),
+      };
 
       const addedListing =
         await apiService.createListing(
-          newListingData
+          listingToCreate
         );
+
+      /*
+       * Add the newly-created listing
+       * to the beginning of the local list.
+       */
 
       setListings((prevListings) => [
         addedListing,
         ...prevListings,
       ]);
 
+      /*
+       * Go to listings.
+       */
+
       setActivePage('listings');
 
     } catch (error) {
-
       console.error(
         'Error creating listing:',
         error
       );
-
     }
-
   };
 
-
-  // =====================================================
-  // SELECT LISTING
-  // =====================================================
+  /*
+   * =========================================================
+   * SELECT LISTING
+   * =========================================================
+   */
 
   const handleSelectListing = (
     item: Listing
   ) => {
-
     console.log(
       'Selected listing:',
       item
@@ -297,35 +406,28 @@ function App() {
 
     setSelectedListing(item);
 
-    // مهم:
-    // هنا ما نمشيوش مباشرة للـChat
-    // نمشيو للـDetails
-
     setActivePage('details');
-
   };
 
-
-  // =====================================================
-  // CONTACT OWNER
-  // =====================================================
+  /*
+   * =========================================================
+   * CONTACT OWNER
+   * =========================================================
+   */
 
   const handleContactOwner = () => {
-
     if (!selectedListing) {
       return;
     }
 
-    // من Details → Chat
-
     setActivePage('chat');
-
   };
 
-
-  // =====================================================
-  // LANGUAGE
-  // =====================================================
+  /*
+   * =========================================================
+   * LANGUAGE
+   * =========================================================
+   */
 
   const direction =
     lang === 'ar'
@@ -336,38 +438,37 @@ function App() {
     translations[lang] ||
     translations.en;
 
-
-  // =====================================================
-  // LOADING
-  // =====================================================
+  /*
+   * =========================================================
+   * LOADING
+   * =========================================================
+   */
 
   if (isLoading) {
-
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-[#eef3f7]">
+      <div className="w-screen h-screen flex items-center justify-center bg-[#F4FAFD]">
 
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#F4845F]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0F5E9C]" />
 
       </div>
     );
-
   }
 
-
-  // =====================================================
-  // APP
-  // =====================================================
+  /*
+   * =========================================================
+   * APP
+   * =========================================================
+   */
 
   return (
-
     <div
       dir={direction}
-      className="w-full min-h-screen flex flex-col font-sans bg-[#eef3f7]"
+      className="w-full min-h-screen flex flex-col font-sans bg-[#F4FAFD]"
     >
 
-      {/* =================================================
+      {/* =====================================================
           NAVBAR
-      ================================================= */}
+      ===================================================== */}
 
       <Navbar
         activePage={activePage}
@@ -378,104 +479,94 @@ function App() {
         handleLogout={handleLogout}
       />
 
-
-      {/* =================================================
+      {/* =====================================================
           MAIN
-      ================================================= */}
+      ===================================================== */}
 
       <main className="flex-1 w-full relative flex flex-col">
 
-
-        {/* =================================================
+        {/* ===================================================
             HOME
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'home' && (
+          <HomePage
+            setActivePage={setActivePage}
+            lang={lang}
+            listings={listings}
+            onSelectListing={
+              handleSelectListing
+            }
+            isLoggedIn={
+              Boolean(currentUser)
+            }
+            onSearch={(query) => {
+              setSearchQuery(query);
+              setActivePage('listings');
+            }}
+          />
+        )}
 
-      <HomePage
-        setActivePage={setActivePage}
-        lang={lang}
-        listings={listings}
-        onSelectListing={
-          handleSelectListing
-        }
-        isLoggedIn={
-          !!currentUser
-        }
-        onSearch={(query) => {
-
-          setSearchQuery(query);
-
-          setActivePage(
-            'listings'
-          );
-
-        }}
-      />
-
-    )}
-
-
-        {/* =================================================
+        {/* ===================================================
             LISTINGS
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'listings' && (
+          <ListingsPage
+            lang={lang}
+            listings={listings}
+            onSelectListing={
+              handleSelectListing
+            }
+            t={t}
+            onAddListing={
+              handleAddNewListing
+            }
+            currentUser={
+              currentUser
+            }
+            onNavigate={
+              setActivePage
+            }
+            searchQuery={
+              searchQuery
+            }
+            onSearchChange={(query) => {
+              setSearchQuery(query);
+            }}
+          />
+        )}
 
-            <ListingsPage
-              lang={lang}
-              listings={listings}
-              onSelectListing={handleSelectListing}
-              t={t}
-
-              onAddListing={
-                handleAddNewListing
-              }
-
-              currentUser={currentUser}
-
-              onNavigate={
-                setActivePage
-              }
-
-              searchQuery={
-                searchQuery
-              }
-
-              onSearchChange={(query) => {
-                setSearchQuery(query);
-              }}
-            />
-
-          )}
-
-
-        {/* =================================================
+        {/* ===================================================
             DETAILS
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'details' && (
-
           selectedListing ? (
-
             <DetailsPage
-              listing={selectedListing}
-              lang={lang}
-              t={t}
-              currentUser={currentUser}
-
+              listing={
+                selectedListing
+              }
+              lang={
+                lang
+              }
+              t={
+                t
+              }
+              currentUser={
+                currentUser
+              }
               onBack={() => {
-                setActivePage('listings');
+                setActivePage(
+                  'listings'
+                );
               }}
-
               onContactOwner={
                 handleContactOwner
               }
             />
-
           ) : (
-
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center p-6">
 
               <div className="bg-white p-8 rounded-3xl shadow-xl text-center">
 
@@ -490,9 +581,11 @@ function App() {
                 <button
                   type="button"
                   onClick={() =>
-                    setActivePage('listings')
+                    setActivePage(
+                      'listings'
+                    )
                   }
-                  className="mt-5 bg-[#F4845F] text-white px-6 py-3 rounded-2xl font-black"
+                  className="mt-5 bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black hover:bg-[#0B4B7A] transition"
                 >
                   Back to listings
                 </button>
@@ -500,37 +593,44 @@ function App() {
               </div>
 
             </div>
-
           )
-
         )}
 
-
-        {/* =================================================
+        {/* ===================================================
             CHAT
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'chat' && (
-
           currentUser ? (
-
             <ChatPage
-              lang={lang}
-              chats={chats}
-              setChats={setChats}
-              activeChatId={activeChatId}
-              setActiveChatId={setActiveChatId}
-              t={t}
-              selectedListing={selectedListing}
+              lang={
+                lang
+              }
+              chats={
+                chats
+              }
+              setChats={
+                setChats
+              }
+              activeChatId={
+                activeChatId
+              }
+              setActiveChatId={
+                setActiveChatId
+              }
+              t={
+                t
+              }
+              selectedListing={
+                selectedListing
+              }
             />
-
           ) : (
-
             <div className="flex-1 flex items-center justify-center p-6">
 
               <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
 
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-orange-50 flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#EAF6FB] flex items-center justify-center text-3xl">
                   🔐
                 </div>
 
@@ -539,21 +639,21 @@ function App() {
                 </h2>
 
                 <p className="text-sm text-gray-500 mb-6">
-
                   {lang === 'ar'
                     ? 'خاصك تسجل الدخول باش تستعمل المحادثات.'
                     : lang === 'fr'
-                      ? 'Connectez-vous pour utiliser la messagerie.'
-                      : 'Please sign in to use the chat.'}
-
+                    ? 'Connectez-vous pour utiliser la messagerie.'
+                    : 'Please sign in to use the chat.'}
                 </p>
 
                 <button
                   type="button"
                   onClick={() =>
-                    setActivePage('signin')
+                    setActivePage(
+                      'signin'
+                    )
                   }
-                  className="bg-[#F4845F] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#e07553] transition"
+                  className="bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#0B4B7A] transition"
                 >
                   {t.signIn}
                 </button>
@@ -561,40 +661,43 @@ function App() {
               </div>
 
             </div>
-
           )
-
         )}
 
-
-        {/* =================================================
+        {/* ===================================================
             PROFILE
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'profile' && (
-
           currentUser ? (
-
             <ProfilePage
-              lang={lang}
-              listings={listings}
+              lang={
+                lang
+              }
+              listings={
+                listings
+              }
               onBackToHome={() =>
-                setActivePage('home')
+                setActivePage(
+                  'home'
+                )
               }
               onAddListing={
                 handleAddNewListing
               }
-              t={t}
-              currentUser={currentUser}
+              t={
+                t
+              }
+              currentUser={
+                currentUser
+              }
             />
-
           ) : (
-
             <div className="flex-1 flex items-center justify-center p-6">
 
               <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
 
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-orange-50 flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#EAF6FB] flex items-center justify-center text-3xl">
                   👤
                 </div>
 
@@ -603,21 +706,21 @@ function App() {
                 </h2>
 
                 <p className="text-sm text-gray-500 mb-6">
-
                   {lang === 'ar'
                     ? 'خاصك تسجل الدخول باش تشوف البروفايل ديالك.'
                     : lang === 'fr'
-                      ? 'Connectez-vous pour accéder à votre profil.'
-                      : 'Please sign in to access your profile.'}
-
+                    ? 'Connectez-vous pour accéder à votre profil.'
+                    : 'Please sign in to access your profile.'}
                 </p>
 
                 <button
                   type="button"
                   onClick={() =>
-                    setActivePage('signin')
+                    setActivePage(
+                      'signin'
+                    )
                   }
-                  className="bg-[#F4845F] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#e07553] transition"
+                  className="bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#0B4B7A] transition"
                 >
                   {t.signIn}
                 </button>
@@ -625,217 +728,203 @@ function App() {
               </div>
 
             </div>
-
           )
-
         )}
 
-
-        {/* =================================================
+        {/* ===================================================
             SIGN IN
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'signin' && (
-
-          <div className="flex-1 flex items-center justify-center p-6">
-
-            <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
-
-              <h2 className="text-2xl font-black mb-2 text-gray-900 text-center">
-                {t.signIn}
-              </h2>
-
-              <p className="text-xs text-gray-500 text-center mb-6">
-                {t.welcomeBack}
-              </p>
-
-              <form
-                onSubmit={(e) => {
-
-                  e.preventDefault();
-
-                  handleLogin({
-                    email: loginEmail,
-                    password: loginPassword,
-                  });
-
-                }}
-              >
-
-                <input
-                  type="email"
-                  value={loginEmail}
-                  onChange={(e) =>
-                    setLoginEmail(e.target.value)
-                  }
-                  placeholder={t.email}
-                  autoComplete="email"
-                  className="w-full bg-gray-50 p-3.5 rounded-2xl mb-4 border border-gray-100 outline-none text-sm font-medium focus:border-[#F4845F] focus:bg-white transition"
-                  required
-                />
-
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) =>
-                    setLoginPassword(e.target.value)
-                  }
-                  placeholder={t.password}
-                  autoComplete="current-password"
-                  className="w-full bg-gray-50 p-3.5 rounded-2xl mb-6 border border-gray-100 outline-none text-sm font-medium focus:border-[#F4845F] focus:bg-white transition"
-                  required
-                />
-
-                <button
-                  type="submit"
-                  className="w-full bg-[#F4845F] text-white py-3.5 rounded-2xl font-black text-sm shadow-lg hover:bg-[#e07553] transition cursor-pointer mb-4"
-                >
-                  {t.connectBtn}
-                </button>
-
-              </form>
-
-              <p className="text-center text-xs text-gray-600 font-medium">
-
-                {t.noAccount}{' '}
-
-                <button
-                  type="button"
-                  onClick={() => {
-
-                    setLoginEmail('');
-                    setLoginPassword('');
-
-                    setActivePage('signup');
-
-                  }}
-                  className="text-[#F4845F] font-black underline cursor-pointer"
-                >
-                  {t.signUp}
-                </button>
-
-              </p>
-
-            </div>
-
-          </div>
-
+          <SignInPage
+            lang={
+              lang
+            }
+            t={
+              t
+            }
+            email={
+              loginEmail
+            }
+            password={
+              loginPassword
+            }
+            setEmail={
+              setLoginEmail
+            }
+            setPassword={
+              setLoginPassword
+            }
+            onLogin={() => {
+              handleLogin({
+                email: loginEmail,
+                password: loginPassword,
+              });
+            }}
+            onGoToSignUp={() => {
+              setLoginEmail('');
+              setLoginPassword('');
+              setActivePage('signup');
+            }}
+          />
         )}
 
-
-        {/* =================================================
+        {/* ===================================================
             SIGN UP
-        ================================================= */}
+        =================================================== */}
 
         {activePage === 'signup' && (
+          <SignUpPage
+            lang={
+              lang
+            }
+            t={
+              t
+            }
 
-          <div className="flex-1 flex items-center justify-center p-6">
+            firstName={
+              registerFirstName
+            }
 
-            <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
+            lastName={
+              registerLastName
+            }
 
-              <h2 className="text-2xl font-black mb-2 text-gray-900 text-center">
-                {t.signUp}
-              </h2>
+            dob={
+              registerDob
+            }
 
-              <p className="text-xs text-gray-500 text-center mb-6">
-                {t.signUpSubtitle}
-              </p>
+            email={
+              registerEmail
+            }
 
-              <form
-                onSubmit={(e) => {
+            phone={
+              registerPhone
+            }
 
-                  e.preventDefault();
+            cin={
+              registerCin
+            }
 
-                  handleRegister({
-                    fullName: registerFullName,
-                    email: registerEmail,
-                    password: registerPassword,
-                  });
+            instagram={
+              registerInstagram
+            }
 
-                }}
-              >
+            facebook={
+              registerFacebook
+            }
 
-                <input
-                  type="text"
-                  value={registerFullName}
-                  onChange={(e) =>
-                    setRegisterFullName(e.target.value)
-                  }
-                  placeholder={t.fullName}
-                  autoComplete="name"
-                  className="w-full bg-gray-50 p-3.5 rounded-2xl mb-4 border border-gray-100 outline-none text-sm font-medium focus:border-[#F4845F] focus:bg-white transition"
-                  required
-                />
+            linkedin={
+              registerLinkedin
+            }
 
-                <input
-                  type="email"
-                  value={registerEmail}
-                  onChange={(e) =>
-                    setRegisterEmail(e.target.value)
-                  }
-                  placeholder={t.email}
-                  autoComplete="email"
-                  className="w-full bg-gray-50 p-3.5 rounded-2xl mb-4 border border-gray-100 outline-none text-sm font-medium focus:border-[#F4845F] focus:bg-white transition"
-                  required
-                />
+            password={
+              registerPassword
+            }
 
-                <input
-                  type="password"
-                  value={registerPassword}
-                  onChange={(e) =>
-                    setRegisterPassword(e.target.value)
-                  }
-                  placeholder={t.createPassword}
-                  autoComplete="new-password"
-                  className="w-full bg-gray-50 p-3.5 rounded-2xl mb-6 border border-gray-100 outline-none text-sm font-medium focus:border-[#F4845F] focus:bg-white transition"
-                  required
-                />
+            setFirstName={
+              setRegisterFirstName
+            }
 
-                <button
-                  type="submit"
-                  className="w-full bg-gray-900 text-white py-3.5 rounded-2xl font-black text-sm shadow-lg hover:bg-gray-800 transition cursor-pointer mb-4"
-                >
-                  {t.createAccountBtn}
-                </button>
+            setLastName={
+              setRegisterLastName
+            }
 
-              </form>
+            setDob={
+              setRegisterDob
+            }
 
-              <p className="text-center text-xs text-gray-600 font-medium">
+            setEmail={
+              setRegisterEmail
+            }
 
-                {t.haveAccount}{' '}
+            setPhone={
+              setRegisterPhone
+            }
 
-                <button
-                  type="button"
-                  onClick={() => {
+            setCin={
+              setRegisterCin
+            }
 
-                    setRegisterFullName('');
-                    setRegisterEmail('');
-                    setRegisterPassword('');
+            setInstagram={
+              setRegisterInstagram
+            }
 
-                    setActivePage('signin');
+            setFacebook={
+              setRegisterFacebook
+            }
 
-                  }}
-                  className="text-[#F4845F] font-black underline cursor-pointer"
-                >
-                  {t.signIn}
-                </button>
+            setLinkedin={
+              setRegisterLinkedin
+            }
 
-              </p>
+            setPassword={
+              setRegisterPassword
+            }
 
-            </div>
+            onRegister={() => {
+              handleRegister({
+                firstName:
+                  registerFirstName,
 
-          </div>
+                lastName:
+                  registerLastName,
 
+                dob:
+                  registerDob,
+
+                email:
+                  registerEmail,
+
+                phone:
+                  registerPhone,
+
+                cin:
+                  registerCin,
+
+                instagram:
+                  registerInstagram,
+
+                facebook:
+                  registerFacebook,
+
+                linkedin:
+                  registerLinkedin,
+
+                password:
+                  registerPassword,
+              });
+            }}
+
+            onGoToSignIn={() => {
+
+              setRegisterFirstName('');
+              setRegisterLastName('');
+              setRegisterDob('');
+              setRegisterEmail('');
+              setRegisterPhone('');
+              setRegisterCin('');
+              setRegisterInstagram('');
+              setRegisterFacebook('');
+              setRegisterLinkedin('');
+              setRegisterPassword('');
+
+              setActivePage('signin');
+            }}
+          />
         )}
 
       </main>
 
-
-      {/* =================================================
+      {/* =====================================================
           FOOTER
-      ================================================= */}
+      ===================================================== */}
 
-      <Footer lang={lang} />
+      <Footer
+        lang={
+          lang
+        }
+      />
 
     </div>
   );
