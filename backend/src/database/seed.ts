@@ -9,7 +9,7 @@ async function seed() {
     const listingRepository = dataSource.getRepository(Listing);
     const translationRepository =
       dataSource.getRepository(ListingTranslation);
-
+	//waaach a khay brother
     const existingListing = await listingRepository.findOne({
       where: {
         cityEnFr: 'Ouarzazate',
