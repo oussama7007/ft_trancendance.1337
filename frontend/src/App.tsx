@@ -9,7 +9,7 @@ import { DetailsPage } from './pages/DetailsPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SignInPage } from './pages/SignInPage';
-import { SignUpPage } from './pages/SignUpPage';
+import { SignUpPage, RegisterData } from './pages/SignUpPage';
 
 import {
   Listing,
@@ -88,6 +88,20 @@ function App() {
   /*
    * =========================================================
    * REGISTER FORM
+   *
+   * SignUpPage controls:
+   * - password
+   * - confirmPassword
+   * - verificationCode
+   * - identifier
+   *
+   * App controls:
+   * - firstName
+   * - lastName
+   * - date of birth
+   * - email
+   * - phone
+   * - CIN
    * =========================================================
    */
 
@@ -109,18 +123,6 @@ function App() {
   const [registerCin, setRegisterCin] =
     useState<string>('');
 
-  const [registerInstagram, setRegisterInstagram] =
-    useState<string>('');
-
-  const [registerFacebook, setRegisterFacebook] =
-    useState<string>('');
-
-  const [registerLinkedin, setRegisterLinkedin] =
-    useState<string>('');
-
-  const [registerPassword, setRegisterPassword] =
-    useState<string>('');
-
   /*
    * =========================================================
    * INITIAL LOAD
@@ -131,34 +133,55 @@ function App() {
     const initApp = async () => {
       try {
         /*
+         * -----------------------------------------------------
          * CURRENT USER
+         * -----------------------------------------------------
          */
 
-        const user =
-          await apiService.getCurrentUser();
+        try {
+          const user =
+            await apiService.getCurrentUser();
 
-        if (user) {
-          setCurrentUser(user);
+          if (user) {
+            setCurrentUser(user);
+          }
+        } catch (userError) {
+          console.warn(
+            'Could not load current user:',
+            userError
+          );
         }
 
         /*
+         * -----------------------------------------------------
          * LISTINGS
+         * -----------------------------------------------------
          */
 
-        const fetchedListings =
-          await apiService.getListings();
+        try {
+          const fetchedListings =
+            await apiService.getListings();
 
-        setListings(
-          Array.isArray(fetchedListings)
-            ? fetchedListings
-            : []
-        );
+          setListings(
+            Array.isArray(fetchedListings)
+              ? fetchedListings
+              : []
+          );
+        } catch (listingError) {
+          console.warn(
+            'Could not load listings:',
+            listingError
+          );
+
+          setListings([]);
+        }
 
         /*
+         * -----------------------------------------------------
          * CHATS
+         * -----------------------------------------------------
          *
-         * If your backend requires authentication,
-         * getChats() can return [] when not logged in.
+         * Chat can require authentication.
          */
 
         try {
@@ -184,7 +207,6 @@ function App() {
           'Error loading app data:',
           error
         );
-
       } finally {
         setIsLoading(false);
       }
@@ -210,20 +232,20 @@ function App() {
         await apiService.login(credentials);
 
       /*
-       * Save logged-in user in React state.
+       * Save authenticated user.
        */
 
       setCurrentUser(user);
 
       /*
-       * Clear login fields.
+       * Clear login form.
        */
 
       setLoginEmail('');
       setLoginPassword('');
 
       /*
-       * Go to listings after login.
+       * Go to listings.
        */
 
       setActivePage('listings');
@@ -233,11 +255,6 @@ function App() {
         'Login error:',
         error
       );
-
-      /*
-       * Later you can show an error message
-       * inside SignInPage.
-       */
     }
   };
 
@@ -248,14 +265,31 @@ function App() {
    */
 
   const handleRegister = async (
-    userData: any
+    userData: RegisterData
   ) => {
     try {
+      /*
+       * userData comes directly from SignUpPage.
+       *
+       * Example:
+       *
+       * {
+       *   firstName: "Said",
+       *   lastName: "..."
+       *   dateOfBirth: "2000-01-01",
+       *   email: "test@gmail.com",
+       *   phone: "",
+       *   password: "********",
+       *   confirmPassword: "********",
+       *   cin: "..."
+       * }
+       */
+
       const user =
         await apiService.register(userData);
 
       /*
-       * Save registered user as current user.
+       * Save new authenticated user.
        */
 
       setCurrentUser(user);
@@ -270,10 +304,6 @@ function App() {
       setRegisterEmail('');
       setRegisterPhone('');
       setRegisterCin('');
-      setRegisterInstagram('');
-      setRegisterFacebook('');
-      setRegisterLinkedin('');
-      setRegisterPassword('');
 
       /*
        * Go to listings.
@@ -318,6 +348,12 @@ function App() {
       setSearchQuery('');
 
       /*
+       * Clear chats.
+       */
+
+      setChats([]);
+
+      /*
        * Go home.
        */
 
@@ -342,13 +378,10 @@ function App() {
   ) => {
     try {
       /*
-       * Security / ownership:
-       *
-       * The backend should determine the owner
+       * The backend should determine the real owner
        * from the authenticated session.
        *
-       * ownerId here is useful for frontend state,
-       * but backend must NOT trust a client-provided ownerId.
+       * ownerId here is only for frontend state.
        */
 
       const listingToCreate: Listing = {
@@ -367,8 +400,7 @@ function App() {
         );
 
       /*
-       * Add the newly-created listing
-       * to the beginning of the local list.
+       * Add new listing at the beginning.
        */
 
       setListings((prevListings) => [
@@ -420,6 +452,15 @@ function App() {
       return;
     }
 
+    /*
+     * Chat page requires authentication.
+     */
+
+    if (!currentUser) {
+      setActivePage('signin');
+      return;
+    }
+
     setActivePage('chat');
   };
 
@@ -447,9 +488,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-[#F4FAFD]">
-
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0F5E9C]" />
-
       </div>
     );
   }
@@ -494,12 +533,8 @@ function App() {
             setActivePage={setActivePage}
             lang={lang}
             listings={listings}
-            onSelectListing={
-              handleSelectListing
-            }
-            isLoggedIn={
-              Boolean(currentUser)
-            }
+            onSelectListing={handleSelectListing}
+            isLoggedIn={Boolean(currentUser)}
             onSearch={(query) => {
               setSearchQuery(query);
               setActivePage('listings');
@@ -515,22 +550,12 @@ function App() {
           <ListingsPage
             lang={lang}
             listings={listings}
-            onSelectListing={
-              handleSelectListing
-            }
+            onSelectListing={handleSelectListing}
             t={t}
-            onAddListing={
-              handleAddNewListing
-            }
-            currentUser={
-              currentUser
-            }
-            onNavigate={
-              setActivePage
-            }
-            searchQuery={
-              searchQuery
-            }
+            onAddListing={handleAddNewListing}
+            currentUser={currentUser}
+            onNavigate={setActivePage}
+            searchQuery={searchQuery}
             onSearchChange={(query) => {
               setSearchQuery(query);
             }}
@@ -544,30 +569,17 @@ function App() {
         {activePage === 'details' && (
           selectedListing ? (
             <DetailsPage
-              listing={
-                selectedListing
-              }
-              lang={
-                lang
-              }
-              t={
-                t
-              }
-              currentUser={
-                currentUser
-              }
+              listing={selectedListing}
+              lang={lang}
+              t={t}
+              currentUser={currentUser}
               onBack={() => {
-                setActivePage(
-                  'listings'
-                );
+                setActivePage('listings');
               }}
-              onContactOwner={
-                handleContactOwner
-              }
+              onContactOwner={handleContactOwner}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
-
               <div className="bg-white p-8 rounded-3xl shadow-xl text-center">
 
                 <div className="text-4xl mb-4">
@@ -580,18 +592,15 @@ function App() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setActivePage(
-                      'listings'
-                    )
-                  }
+                  onClick={() => {
+                    setActivePage('listings');
+                  }}
                   className="mt-5 bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black hover:bg-[#0B4B7A] transition"
                 >
                   Back to listings
                 </button>
 
               </div>
-
             </div>
           )
         )}
@@ -603,27 +612,13 @@ function App() {
         {activePage === 'chat' && (
           currentUser ? (
             <ChatPage
-              lang={
-                lang
-              }
-              chats={
-                chats
-              }
-              setChats={
-                setChats
-              }
-              activeChatId={
-                activeChatId
-              }
-              setActiveChatId={
-                setActiveChatId
-              }
-              t={
-                t
-              }
-              selectedListing={
-                selectedListing
-              }
+              lang={lang}
+              chats={chats}
+              setChats={setChats}
+              activeChatId={activeChatId}
+              setActiveChatId={setActiveChatId}
+              t={t}
+              selectedListing={selectedListing}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
@@ -648,11 +643,9 @@ function App() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setActivePage(
-                      'signin'
-                    )
-                  }
+                  onClick={() => {
+                    setActivePage('signin');
+                  }}
                   className="bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#0B4B7A] transition"
                 >
                   {t.signIn}
@@ -671,26 +664,14 @@ function App() {
         {activePage === 'profile' && (
           currentUser ? (
             <ProfilePage
-              lang={
-                lang
-              }
-              listings={
-                listings
-              }
-              onBackToHome={() =>
-                setActivePage(
-                  'home'
-                )
-              }
-              onAddListing={
-                handleAddNewListing
-              }
-              t={
-                t
-              }
-              currentUser={
-                currentUser
-              }
+              lang={lang}
+              listings={listings}
+              onBackToHome={() => {
+                setActivePage('home');
+              }}
+              onAddListing={handleAddNewListing}
+              t={t}
+              currentUser={currentUser}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
@@ -715,11 +696,9 @@ function App() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setActivePage(
-                      'signin'
-                    )
-                  }
+                  onClick={() => {
+                    setActivePage('signin');
+                  }}
                   className="bg-[#0F5E9C] text-white px-6 py-3 rounded-2xl font-black text-sm shadow-lg hover:bg-[#0B4B7A] transition"
                 >
                   {t.signIn}
@@ -737,33 +716,34 @@ function App() {
 
         {activePage === 'signin' && (
           <SignInPage
-            lang={
-              lang
-            }
-            t={
-              t
-            }
-            email={
-              loginEmail
-            }
-            password={
-              loginPassword
-            }
-            setEmail={
-              setLoginEmail
-            }
-            setPassword={
-              setLoginPassword
-            }
+            lang={lang}
+            t={t}
+
+            email={loginEmail}
+            password={loginPassword}
+
+            setEmail={setLoginEmail}
+            setPassword={setLoginPassword}
+
             onLogin={() => {
               handleLogin({
                 email: loginEmail,
                 password: loginPassword,
               });
             }}
+
             onGoToSignUp={() => {
+              /*
+               * Clear login fields.
+               */
+
               setLoginEmail('');
               setLoginPassword('');
+
+              /*
+               * Open signup.
+               */
+
               setActivePage('signup');
             }}
           />
@@ -775,128 +755,60 @@ function App() {
 
         {activePage === 'signup' && (
           <SignUpPage
-            lang={
-              lang
-            }
-            t={
-              t
-            }
+            lang={lang}
+            t={t}
 
-            firstName={
-              registerFirstName
-            }
+            /*
+             * PERSONAL INFORMATION
+             */
 
-            lastName={
-              registerLastName
-            }
+            firstName={registerFirstName}
+            lastName={registerLastName}
+            dob={registerDob}
 
-            dob={
-              registerDob
-            }
+            /*
+             * CONTACT
+             */
 
-            email={
-              registerEmail
-            }
+            email={registerEmail}
+            phone={registerPhone}
 
-            phone={
-              registerPhone
-            }
+            /*
+             * CIN
+             */
 
-            cin={
-              registerCin
-            }
+            cin={registerCin}
 
-            instagram={
-              registerInstagram
-            }
+            /*
+             * SETTERS
+             */
 
-            facebook={
-              registerFacebook
-            }
+            setFirstName={setRegisterFirstName}
+            setLastName={setRegisterLastName}
+            setDob={setRegisterDob}
 
-            linkedin={
-              registerLinkedin
-            }
+            setEmail={setRegisterEmail}
+            setPhone={setRegisterPhone}
 
-            password={
-              registerPassword
-            }
+            setCin={setRegisterCin}
 
-            setFirstName={
-              setRegisterFirstName
-            }
+            /*
+             * REGISTER
+             *
+             * SignUpPage gives us the complete RegisterData.
+             */
 
-            setLastName={
-              setRegisterLastName
-            }
+            onRegister={handleRegister}
 
-            setDob={
-              setRegisterDob
-            }
-
-            setEmail={
-              setRegisterEmail
-            }
-
-            setPhone={
-              setRegisterPhone
-            }
-
-            setCin={
-              setRegisterCin
-            }
-
-            setInstagram={
-              setRegisterInstagram
-            }
-
-            setFacebook={
-              setRegisterFacebook
-            }
-
-            setLinkedin={
-              setRegisterLinkedin
-            }
-
-            setPassword={
-              setRegisterPassword
-            }
-
-            onRegister={() => {
-              handleRegister({
-                firstName:
-                  registerFirstName,
-
-                lastName:
-                  registerLastName,
-
-                dob:
-                  registerDob,
-
-                email:
-                  registerEmail,
-
-                phone:
-                  registerPhone,
-
-                cin:
-                  registerCin,
-
-                instagram:
-                  registerInstagram,
-
-                facebook:
-                  registerFacebook,
-
-                linkedin:
-                  registerLinkedin,
-
-                password:
-                  registerPassword,
-              });
-            }}
+            /*
+             * GO TO SIGN IN
+             */
 
             onGoToSignIn={() => {
+
+              /*
+               * Clear signup data.
+               */
 
               setRegisterFirstName('');
               setRegisterLastName('');
@@ -904,10 +816,10 @@ function App() {
               setRegisterEmail('');
               setRegisterPhone('');
               setRegisterCin('');
-              setRegisterInstagram('');
-              setRegisterFacebook('');
-              setRegisterLinkedin('');
-              setRegisterPassword('');
+
+              /*
+               * Go to sign in.
+               */
 
               setActivePage('signin');
             }}
@@ -921,9 +833,7 @@ function App() {
       ===================================================== */}
 
       <Footer
-        lang={
-          lang
-        }
+        lang={lang}
       />
 
     </div>
