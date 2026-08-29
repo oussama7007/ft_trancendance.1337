@@ -264,60 +264,99 @@ function App() {
    * =========================================================
    */
 
-  const handleRegister = async (
-    userData: RegisterData
-  ) => {
-    try {
-      /*
-       * userData comes directly from SignUpPage.
-       *
-       * Example:
-       *
-       * {
-       *   firstName: "Said",
-       *   lastName: "..."
-       *   dateOfBirth: "2000-01-01",
-       *   email: "test@gmail.com",
-       *   phone: "",
-       *   password: "********",
-       *   confirmPassword: "********",
-       *   cin: "..."
-       * }
-       */
 
-      const user =
-        await apiService.register(userData);
+// ++++++++++++++++++++++++++++++++++++++++++++
+const handleRegister = async (
+  userData: RegisterData
+) => {
+  try {
+    /*
+     * Registration has already been completed
+     * by SignUpPage through:
+     *
+     * /auth/register/start
+     * /auth/register/contact
+     * /auth/register/verify
+     * /auth/register/finish
+     *
+     * Therefore, DO NOT call apiService.register()
+     * here anymore.
+     */
 
-      /*
-       * Save new authenticated user.
-       */
+    /*
+     * Move the user to the sign-in page after
+     * successful registration.
+     */
+    setActivePage('signin');
 
-      setCurrentUser(user);
+    /*
+     * Clear registration form data.
+     */
+    setRegisterFirstName('');
+    setRegisterLastName('');
+    setRegisterDob('');
+    setRegisterEmail('');
+    setRegisterPhone('');
+    setRegisterCin('');
 
-      /*
-       * Clear registration fields.
-       */
+  } catch (error) {
+    console.error('Registration completed but UI transition failed:', error);
+  }
+};
+//++++++++++++++++++++++++++++++++++++++++++++
+  // const handleRegister = async (
+  //   userData: RegisterData
+  // ) => {
+  //   try {
+  //     /*
+  //      * userData comes directly from SignUpPage.
+  //      *
+  //      * Example:
+  //      *
+  //      * {
+  //      *   firstName: "Said",
+  //      *   lastName: "..."
+  //      *   dateOfBirth: "2000-01-01",
+  //      *   email: "test@gmail.com",
+  //      *   phone: "",
+  //      *   password: "********",
+  //      *   confirmPassword: "********",
+  //      *   cin: "..."
+  //      * }
+  //      */
 
-      setRegisterFirstName('');
-      setRegisterLastName('');
-      setRegisterDob('');
-      setRegisterEmail('');
-      setRegisterPhone('');
-      setRegisterCin('');
+  //     const useeiService.register(userData);
 
-      /*
-       * Go to listings.
-       */
+  //     /*
+  //      * Save new authenticated user.
+  //      */
 
-      setActivePage('listings');
+  //     setCurrentUser(user);
 
-    } catch (error) {
-      console.error(
-        'Register error:',
-        error
-      );
-    }
-  };
+  //     /*
+  //      * Clear registration fields.
+  //      */
+
+  //     setRegisterFirstName('');
+  //     setRegisterLastName('');
+  //     setRegisterDob('');
+  //     setRegisterEmail('');
+  //     setRegisterPhone('');
+  //     setRegisterCin('');
+
+  //     /*
+  //      * Go to listings.
+  //      */
+
+  //     setActivePage('listings');
+
+  //   } catch (error) {
+  //     console.error(
+  //       'Register error:',
+  //       error
+  //     );
+  //   }
+  // };
 
   /*
    * =========================================================

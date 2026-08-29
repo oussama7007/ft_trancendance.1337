@@ -13,7 +13,7 @@ async function seed() {
     const existingListing = await listingRepository.findOne({
       where: {
         cityEnFr: 'Ouarzazate',
-        ownerName: 'Youssef Alami',
+     
       },
     });
 
@@ -33,7 +33,7 @@ async function seed() {
     listing.cityEnFr = 'Ouarzazate';
     listing.district = 'حي وسط المدينة';
     listing.districtEnFr = 'Centre-ville';
-    listing.ownerName = 'Youssef Alami';
+   
     listing.ownerId = 101;
     listing.lat = null;
     listing.lng = null;

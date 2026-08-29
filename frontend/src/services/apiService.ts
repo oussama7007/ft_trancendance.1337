@@ -133,21 +133,112 @@ export const apiService = {
 
     return loggedInUser;
   },
+  startRegistration: async (data: {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  cin?: string;
+}) => {
+  const response = await fetch(
+    'http://localhost:3000/auth/register/start',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }
+  );
 
-  register: async (userData: any): Promise<User> => {
-    await delay(800);
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
 
-    loggedInUser = {
-      id: Date.now(),
-      fullName: userData.fullName,
-      email: userData.email,
-      profilePic: ''
-    };
+  return response.json();
+},
 
-    localStorage.setItem('irent_token', 'mock_jwt_token_123');
+registerContact: async (data: {
+  registrationSessionId: string;
+  type: 'email' | 'phone';
+  value: string;
+}) => {
+  const response = await fetch(
+    'http://localhost:3000/auth/register/contact',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }
+  );
 
-    return loggedInUser;
-  },
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json();
+},
+
+verifyRegistration: async (data: {
+  registrationSessionId: string;
+  code: string;
+}) => {
+  const response = await fetch(
+    'http://localhost:3000/auth/register/verify',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json();
+},
+
+finishRegistration: async (data: {
+  registrationSessionId: string;
+  password: string;
+  passwordConfirmation: string;
+}) => {
+  const response = await fetch(
+    'http://localhost:3000/auth/register/finish',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json();
+},
+
+  // register: async (userData: any): Promise<User> => {
+  //   await delay(800);
+
+  //   loggedInUser = {
+  //     id: Date.now(),
+  //     fullName: userData.fullName,
+  //     email: userData.email,
+  //     profilePic: ''
+  //   };
+
+  //   localStorage.setItem('irent_token', 'mock_jwt_token_123');
+
+  //   return loggedInUser;
+  // },
 
   logout: async (): Promise<void> => {
     await delay(200);

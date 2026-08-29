@@ -38,7 +38,6 @@ export class ListingsService {
         bedrooms: listing.bedrooms,
         hasWifi: listing.hasWifi,
         imageUrl: listing.imageUrl,
-        ownerName: listing.ownerName,
         ownerId: listing.ownerId,
         lat: listing.lat,
         lng: listing.lng,

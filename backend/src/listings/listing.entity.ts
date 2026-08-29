@@ -1,10 +1,13 @@
 import {
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from 'typeorm';
 import { ListingTranslation } from './listing-translation.entity';
+import { User } from '../users/user.entity';
 
 @Entity('listings')
 export class Listing {
@@ -35,17 +38,21 @@ export class Listing {
   @Column()
   districtEnFr: string;
 
-  @Column({ nullable: true })
-  ownerName: string;
+  @ManyToOne(() => User, (user) => user.listings, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User | null;
 
   @Column({ nullable: true })
-  ownerId: number;
+  ownerId: number | null;
 
-@Column('double precision', { nullable: true })
-lat: number | null;
+  @Column('double precision', { nullable: true })
+  lat: number | null;
 
-@Column('double precision', { nullable: true })
-lng: number | null;
+  @Column('double precision', { nullable: true })
+  lng: number | null;
 
   @OneToMany(
     () => ListingTranslation,
