@@ -20,6 +20,9 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column()
+  gender: 'male' | 'female';
+
   @Column({ type: 'date' })
   dateOfBirth: string;
 
