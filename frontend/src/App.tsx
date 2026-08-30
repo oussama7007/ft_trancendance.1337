@@ -123,6 +123,8 @@ function App() {
   const [registerCin, setRegisterCin] =
     useState<string>('');
 
+  const [registerGender, setGender] = useState('');
+
   /*
    * =========================================================
    * INITIAL LOAD
@@ -295,6 +297,7 @@ const handleRegister = async (
     setRegisterFirstName('');
     setRegisterLastName('');
     setRegisterDob('');
+    setGender('');
     setRegisterEmail('');
     setRegisterPhone('');
     setRegisterCin('');
@@ -804,6 +807,8 @@ const handleRegister = async (
             firstName={registerFirstName}
             lastName={registerLastName}
             dob={registerDob}
+            gender={registerGender}
+
 
             /*
              * CONTACT
@@ -825,6 +830,7 @@ const handleRegister = async (
             setFirstName={setRegisterFirstName}
             setLastName={setRegisterLastName}
             setDob={setRegisterDob}
+            setGender={setGender}
 
             setEmail={setRegisterEmail}
             setPhone={setRegisterPhone}
@@ -852,6 +858,7 @@ const handleRegister = async (
               setRegisterFirstName('');
               setRegisterLastName('');
               setRegisterDob('');
+              setGender('');
               setRegisterEmail('');
               setRegisterPhone('');
               setRegisterCin('');

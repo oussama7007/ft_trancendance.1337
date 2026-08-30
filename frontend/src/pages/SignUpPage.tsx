@@ -6,6 +6,7 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
+  gender: string;
   email: string;
   phone: string;
   password: string;
@@ -20,9 +21,11 @@ interface SignUpPageProps {
   firstName: string;
   lastName: string;
   dob: string;
+  gender: string;
   email: string;
   phone: string;
   cin: string;
+
 
   setFirstName: (value: string) => void;
   setLastName: (value: string) => void;
@@ -30,6 +33,8 @@ interface SignUpPageProps {
   setEmail: (value: string) => void;
   setPhone: (value: string) => void;
   setCin: (value: string) => void;
+  setGender: (value: string) => void;
+
 
   onRegister: (data: RegisterData) => void;
   onGoToSignIn: () => void;
@@ -329,6 +334,8 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   email,
   phone,
   cin,
+  gender,
+  setGender,
   setFirstName,
   setLastName,
   setDob,
@@ -426,6 +433,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
             firstName,
             lastName,
             dateOfBirth: dob,
+            gender,
             cin: cin || undefined,
           });
 
@@ -513,6 +521,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
         firstName,
         lastName,
         dateOfBirth: dob,
+        gender,
         email: isEmailIdentifier
           ? identifier
           : '',
@@ -689,6 +698,126 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   </div>
                 </div>
               </div>
+        <div className="group md:col-span-2">
+          <label className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500 mb-2">
+            Gender
+            <span className="text-red-500 text-sm">
+              *
+            </span>
+          </label>
+
+          <div className="grid grid-cols-2 gap-4">
+
+            {/* HOMME */}
+            <button
+              type="button"
+              onClick={() => setGender('male')}
+              className={`relative flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer group/gender ${
+                gender === 'male'
+                  ? 'border-[#F4845F] bg-orange-50 shadow-md shadow-[#F4845F]/10'
+                  : 'border-gray-200 bg-gray-50/80 hover:border-[#F4845F]/50 hover:bg-white hover:-translate-y-0.5'
+              }`}
+            >
+              {/* Icon */}
+              <div
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  gender === 'male'
+                    ? 'bg-[#F4845F] text-white scale-105'
+                    : 'bg-gray-100 text-gray-400 group-hover/gender:text-[#F4845F] group-hover/gender:bg-orange-50'
+                }`}
+              >
+                <UserIcon />
+              </div>
+
+              <div className="text-left">
+                <p
+                  className={`text-sm font-black transition-colors ${
+                    gender === 'male'
+                      ? 'text-[#F4845F]'
+                      : 'text-gray-700 group-hover/gender:text-[#F4845F]'
+                  }`}
+                >
+                  Homme
+                </p>
+
+                <p className="text-[10px] text-gray-400 mt-0.5">
+                  Male
+                </p>
+              </div>
+
+              {/* Check */}
+              <div
+                className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  gender === 'male'
+                    ? 'border-[#F4845F] bg-[#F4845F] text-white'
+                    : 'border-gray-300'
+                }`}
+              >
+                {gender === 'male' && (
+                  <span className="text-[10px] font-black">
+                    ✓
+                  </span>
+                )}
+              </div>
+            </button>
+
+            {/* FEMME */}
+            <button
+              type="button"
+              onClick={() => setGender('female')}
+              className={`relative flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer group/gender ${
+                gender === 'female'
+                  ? 'border-[#F4845F] bg-orange-50 shadow-md shadow-[#F4845F]/10'
+                  : 'border-gray-200 bg-gray-50/80 hover:border-[#F4845F]/50 hover:bg-white hover:-translate-y-0.5'
+              }`}
+            >
+              {/* Icon */}
+              <div
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  gender === 'female'
+                    ? 'bg-[#F4845F] text-white scale-105'
+                    : 'bg-gray-100 text-gray-400 group-hover/gender:text-[#F4845F] group-hover/gender:bg-orange-50'
+                }`}
+              >
+                <UserIcon />
+              </div>
+
+              <div className="text-left">
+                <p
+                  className={`text-sm font-black transition-colors ${
+                    gender === 'female'
+                      ? 'text-[#F4845F]'
+                      : 'text-gray-700 group-hover/gender:text-[#F4845F]'
+                  }`}
+                >
+                  Femme
+                </p>
+
+                <p className="text-[10px] text-gray-400 mt-0.5">
+                  Female
+                </p>
+              </div>
+
+              {/* Check */}
+              <div
+                className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  gender === 'female'
+                    ? 'border-[#F4845F] bg-[#F4845F] text-white'
+                    : 'border-gray-300'
+                }`}
+              >
+                {gender === 'female' && (
+                  <span className="text-[10px] font-black">
+                    ✓
+                  </span>
+                )}
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+
 
               <div className="border-t border-gray-100 pt-6 mt-6">
                 <FormInput

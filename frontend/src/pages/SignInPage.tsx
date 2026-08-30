@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Language } from '../types';
 
 interface SignInPageProps {
@@ -47,6 +47,41 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onLogin,
   onGoToSignUp,
 }) => {
+    const isEmailIdentifier =
+      email.length === 0 || email.includes('@');
+    const [errorMessage, setErrorMessage] = useState('');
+    const validateIdentifier = () => {
+  const value = email.trim();
+
+  // Empty field
+  if (!value) {
+    setErrorMessage('Please enter your email or phone number.');
+    return false;
+  }
+
+  // If user is using email
+  if (value.includes('@')) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(value)) {
+      setErrorMessage('Please enter a valid email address.');
+      return false;
+    }
+  }
+
+  // If user is using phone
+  else {
+    const phoneRegex = /^(\+212|0)[5-7][0-9]{8}$/;
+
+    if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+      setErrorMessage('Please enter a valid phone number.');
+      return false;
+    }
+  }
+
+  setErrorMessage('');
+  return true;
+};
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-10 md:px-8 bg-white">
 
@@ -85,48 +120,90 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onLogin();
+
+            if (validateIdentifier()) {
+              onLogin();
+            }
           }}
           className="p-7 md:p-10"
         >
 
-          {/* EMAIL */}
-          <div className="group mb-5">
+{/* EMAIL OR PHONE */}
+<div className="group mb-5">
 
-            <label className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500 mb-2">
-              {t.email || 'Email'}
-              <span className="text-red-500 text-sm leading-none">
-                *
-              </span>
-            </label>
+  <label className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-gray-500 mb-2">
+    Email or Phone Number
+    <span className="text-red-500 text-sm leading-none">
+      *
+    </span>
+  </label>
 
-            <div className="relative">
+  <div className="relative">
 
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F4845F] group-focus-within:scale-110 transition-all duration-200 pointer-events-none">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="w-5 h-5"
-                >
-                  <rect x="3" y="5" width="18" height="14" rx="2" />
-                  <path d="m3 7 9 6 9-6" />
-                </svg>
-              </div>
+    {/* DYNAMIC ICON */}
+    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F4845F] group-focus-within:scale-110 transition-all duration-200 pointer-events-none">
 
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.email || 'name@example.com'}
-                autoComplete="email"
-                required
-                className="w-full bg-gray-50/80 border border-gray-200 rounded-2xl py-3.5 pl-12 pr-4 outline-none text-sm font-semibold text-gray-800 placeholder:text-gray-400 transition-all duration-200 hover:border-gray-300 hover:bg-white focus:border-[#F4845F] focus:bg-white focus:ring-4 focus:ring-[#F4845F]/10"
-              />
+      {isEmailIdentifier ? (
 
-            </div>
-          </div>
+        /* EMAIL ICON */
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="w-5 h-5"
+        >
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="m3 7 9 6 9-6" />
+        </svg>
+
+      ) : (
+
+        /* PHONE ICON */
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="w-5 h-5"
+        >
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+
+      )}
+
+    </div>
+
+    {/* EMAIL OR PHONE INPUT */}
+    <input
+      type="text"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="name@example.com or +212 6..."
+      autoComplete="username"
+      required
+      className="w-full bg-gray-50/80 border border-gray-200 rounded-2xl py-3.5 pl-12 pr-4 outline-none text-sm font-semibold text-gray-800 placeholder:text-gray-400 transition-all duration-200 hover:border-gray-300 hover:bg-white focus:border-[#F4845F] focus:bg-white focus:ring-4 focus:ring-[#F4845F]/10"
+    />
+
+  </div>
+
+  {/* DYNAMIC DETECTION MESSAGE */}
+  {email.trim().length > 0 && (
+    <p className="mt-2 text-[11px] font-medium text-gray-400">
+
+      {isEmailIdentifier
+        ? 'Signing in with Email'
+        : 'Signing in with Phone Number'}
+
+    </p>
+  )}
+  {errorMessage && (
+    <p className="mt-2 text-[11px] font-semibold text-red-500">
+      {errorMessage}
+    </p>
+  )}
+
+</div>
 
           {/* PASSWORD */}
           <div className="group mb-6">

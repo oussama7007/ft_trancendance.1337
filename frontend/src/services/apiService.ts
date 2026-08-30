@@ -137,6 +137,7 @@ export const apiService = {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
+  gender: string;
   cin?: string;
 }) => {
   const response = await fetch(
