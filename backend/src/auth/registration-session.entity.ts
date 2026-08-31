@@ -22,10 +22,9 @@ export class RegistrationSession {
 
   @Column({ type: 'varchar', nullable: true, unique: true })
   cin: string | null;
-
-
-
-
+  
+  @Column()
+  gender: 'male' | 'female';
 
   @Column({ type: 'timestamp' })
   expiresAt: Date;

@@ -4,7 +4,7 @@ import { StartRegistrationDto } from './dto/start-registration.dto';
 import { RegisterContactDto } from './dto/register-contact.dto';
 import { VerifyRegistrationDto } from './dto/verify-registration.dto';
 import { FinishRegistrationDto } from './dto/finish-registration.dto';
-
+import { LoginDto } from './dto/login.dto';
 
 
 @Controller('auth')
@@ -28,5 +28,11 @@ export class AuthController {
   @Post('register/finish')
   finishRegistration(@Body() dto: FinishRegistrationDto) {
     return this.authService.finishRegistration(dto);
+  }
+
+  @Post('login')
+  login(@Body() dto: LoginDto)
+  {
+    return this.authService.login(dto);
   }
 }

@@ -1,4 +1,4 @@
-import { IsDateString, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsDateString, IsIn ,IsOptional, IsString, MinLength } from 'class-validator';
 
 export class StartRegistrationDto {
   @IsString()
@@ -11,6 +11,9 @@ export class StartRegistrationDto {
 
   @IsDateString()
   dateOfBirth: string;
+
+  @IsIn(['male', 'female'])
+  gender: 'male' | 'female';
 
   @IsOptional()
   @IsString()

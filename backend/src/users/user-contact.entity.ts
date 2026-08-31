@@ -15,7 +15,7 @@ export class UserContact {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 10 })
+  @Column({ length: 254 })
   type: 'email' | 'phone';
 
   @Column()

@@ -111,28 +111,61 @@ export const apiService = {
 
     return listingToAdd;
   },
-
-  login: async (credentials: {
+  login: async(Credential:{
     email: string;
     password: string;
-  }): Promise<User> => {
-    await delay(600);
-
-    const nameFromEmail = credentials.email
-      .split('@')[0]
-      .replace(/[._-]/g, ' ');
+  }) : Promise<User> => {
+    const response = await fetch('http://localhost:3000/auth/login',
+      {
+        method: 'POST',
+        headers:{
+          'Content-type': 'application/json'
+        }, 
+        body: JSON.stringify({
+          identifier: Credential.email, 
+          password: Credential.password
+        })
+      }
+    );
+    if(!response.ok)
+    {
+      throw new Error(await response.text());
+    }
+    const data = await response.json();
 
     loggedInUser = {
-      id: 101,
-      fullName: nameFromEmail,
-      email: credentials.email,
-      profilePic: ''
+      id: data.userId,
+      fullName: `${data.firstName} ${data.lastName}`,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: Credential.email,
+      phone: data.phone,
+      dateOfBirth: data.dateOfBirth
     };
-
-    localStorage.setItem('irent_token', 'mock_jwt_token_123');
-
     return loggedInUser;
   },
+  // login: async (credentials: {
+  //   email: string;
+  //   password: string;
+  // }): Promise<User> => {
+  //   await delay(600);
+
+  //   const nameFromEmail = credentials.email
+  //     .split('@')[0]
+  //     .replace(/[._-]/g, ' ');
+
+  //   loggedInUser = {
+  //     id: 101,
+  //     fullName: nameFromEmail,
+  //     email: credentials.email,
+  //     profilePic: ''
+  //   };
+
+  //   localStorage.setItem('irent_token', 'mock_jwt_token_123');
+
+  //   return loggedInUser;
+  // },
+
   startRegistration: async (data: {
   firstName: string;
   lastName: string;

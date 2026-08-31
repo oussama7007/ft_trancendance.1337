@@ -14,7 +14,7 @@ dotenv.config({ path: '../.env' });
 
 export default new DataSource({
   type: 'postgres',
-  host: 'database',
+  host: process.env.POSTGRES_HOST,
   port: 5432,
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,

@@ -4,13 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-
 import { User } from '../users/user.entity';
 import { UserContact } from '../users/user-contact.entity';
 
 
 import * as bcrypt from 'bcrypt';
 import { DataSource, IsNull, Not, Repository } from 'typeorm';
+
 
 import { FinishRegistrationDto } from './dto/finish-registration.dto';
 
@@ -20,6 +20,7 @@ import { VerificationChallenge } from './verification-challenge.entity';
 import { StartRegistrationDto } from './dto/start-registration.dto';
 import { RegisterContactDto } from './dto/register-contact.dto';
 import { VerifyRegistrationDto } from './dto/verify-registration.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,7 @@ export class AuthService {
       firstName: dto.firstName,
       lastName: dto.lastName,
       dateOfBirth: dto.dateOfBirth,
+      gender : dto.gender,
       cin: dto.cin ?? null,
       expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     });
@@ -233,6 +235,7 @@ export class AuthService {
       firstName: session.firstName,
       lastName: session.lastName,
       dateOfBirth: session.dateOfBirth,
+      gender: session.gender,
       cin: session.cin,
       passwordHash,
     });
@@ -265,5 +268,42 @@ export class AuthService {
   } finally {
     await queryRunner.release();
   }
+}
+async login(dto: LoginDto) {
+  const contact =
+    await this.userContactRepository.findOne({
+      where: {
+        value: dto.identifier,
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+  if (!contact || !contact.user) {
+    throw new BadRequestException(
+      'Invalid credentials',
+    );
+  }
+
+  const user = contact.user;
+  
+  const passwordIsValid = await bcrypt.compare(
+    dto.password,
+    user.passwordHash,
+  );
+    if (!passwordIsValid) {
+    throw new BadRequestException(
+      'Invalid credentials',
+    );
+  }
+
+  return {
+  message: 'Login successful',
+  userId: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  dateOfBirth: user.dateOfBirth,
+  };
 }
 }
