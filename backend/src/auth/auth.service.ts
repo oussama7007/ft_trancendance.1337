@@ -286,6 +286,9 @@ async login(dto: LoginDto) {
     );
   }
 
+
+  
+
   const user = contact.user;
   
   const passwordIsValid = await bcrypt.compare(
