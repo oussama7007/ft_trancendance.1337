@@ -129,7 +129,8 @@ export const apiService = {
     );
     if(!response.ok)
     {
-      throw new Error(await response.text());
+      const errorData = await response.json();
+      throw new Error(errorData.messages || 'Email or Password incorect ');
     }
     const data = await response.json();
 

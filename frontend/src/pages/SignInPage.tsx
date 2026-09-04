@@ -8,6 +8,8 @@ interface SignInPageProps {
   password: string;
   setEmail: (value: string) => void;
   setPassword: (value: string) => void;
+  setLoginError: (value: string) => void;
+  loginError: string;
   onLogin: () => void;
   onGoToSignUp: () => void;
 }
@@ -44,6 +46,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   password,
   setEmail,
   setPassword,
+  loginError,
+  setLoginError,
   onLogin,
   onGoToSignUp,
 }) => {
@@ -245,8 +249,80 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 required
                 className="w-full bg-gray-50/80 border border-gray-200 rounded-2xl py-3.5 pl-12 pr-4 outline-none text-sm font-semibold text-gray-800 placeholder:text-gray-400 transition-all duration-200 hover:border-gray-300 hover:bg-white focus:border-[#F4845F] focus:bg-white focus:ring-4 focus:ring-[#F4845F]/10"
               />
+            </div>
+          {loginError && (
+
+            <div className="flex items-center justify-between w-full bg-white shadow-md h-10 rounded-lg overflow-hidden mt-4 ">
+
+          {/* RED LEFT BORDER */}
+          <div className="h-full w-1.5 bg-red-600 shrink-0"></div>
+
+          {/* MESSAGE */}
+          <div className="flex items-center flex-1 px-3 text-red-600 min-w-0">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              className="shrink-0"
+            >
+              <path
+                d="M11.95 16.5h.1"
+                style={{
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  strokeWidth: 1.95,
+                }}
+              />
+
+              <path
+                d="M3 12a9 9 0 0 1 9-9h0a9 9 0 0 1 9 9h0a9 9 0 0 1-9 9h0a9 9 0 0 1-9-9m9 0V7"
+                style={{
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round",
+                  strokeWidth: 1.5,
+                }}
+              />
+            </svg>
+
+            <p className="text-sm ml-2 font-medium truncate">
+              {loginError}
+            </p>
+          </div>
+
+          {/* CLOSE BUTTON */}
+          <button
+            type="button"
+            aria-label="close"
+            onClick={() => setLoginError("")}
+            className="text-red-600 mr-3 active:scale-90 transition-all shrink-0 cursor-pointer"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 5L5 15M5 5L15 15"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
 
             </div>
+          )}
+
+
           </div>
 
           {/* LOGIN BUTTON */}

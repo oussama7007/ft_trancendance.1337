@@ -84,6 +84,9 @@ function App() {
 
   const [loginPassword, setLoginPassword] =
     useState<string>('');
+  
+  const [loginError, setLoginError] =
+    useState<string>("");
 
   /*
    * =========================================================
@@ -230,6 +233,9 @@ function App() {
     }
   ) => {
     try {
+
+      setLoginError('');
+
       const user =
         await apiService.login(credentials);
 
@@ -257,6 +263,14 @@ function App() {
         'Login error:',
         error
       );
+
+      if (error instanceof Error) {
+        setLoginError(error.message);
+    } else {
+        setLoginError(
+          'Invalid email or password.'
+      );
+    }
     }
   };
 
@@ -767,6 +781,9 @@ const handleRegister = async (
             setEmail={setLoginEmail}
             setPassword={setLoginPassword}
 
+            loginError={loginError}
+            setLoginError={setLoginError}
+
             onLogin={() => {
               handleLogin({
                 email: loginEmail,
@@ -781,6 +798,7 @@ const handleRegister = async (
 
               setLoginEmail('');
               setLoginPassword('');
+              setLoginError('');
 
               /*
                * Open signup.
